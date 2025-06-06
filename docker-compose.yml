@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL pour l'application Maritime SVS
+  postgresql:
+    image: postgres:15-alpine
+    container_name: svs-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: svs_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=fr_FR.UTF-8 --lc-ctype=fr_FR.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./docker/postgresql/init:/docker-entrypoint-initdb.d
+    networks:
+      - svs-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U svs_user -d svs_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Interface d'administration PostgreSQL (optionnel)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: svs-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@svs-svs.sn
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - svs-network
+    depends_on:
+      - postgresql
+
+  # Redis pour le cache (optionnel pour plus tard)
+  redis:
+    image: redis:7-alpine
+    container_name: svs-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - svs-network
+    command: redis-server --appendonly yes --requirepass redis123
+
+volumes:
+  postgresql_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  svs-network:
+    driver: bridge
+
+# Pour démarrer les services :
+# docker-compose up -d
+
+# Pour arrêter les services :
+# docker-compose down
+
+# Pour voir les logs :
+# docker-compose logs -f postgresql
+
+# Pour accéder à PostgreSQL :
+# psql -h localhost -p 5432 -U svs_user -d svs_db
+
+# Pour accéder à PgAdmin :
+# http://localhost:5050

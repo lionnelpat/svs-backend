@@ -1,0 +1,23 @@
+# Configuration pour le profil de d�veloppement
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  # Configuration spécifique au développement
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  devtools:
+    restart:
+      enabled: true
+      additional-exclude: static/**,public/**
+    livereload:
+      enabled: true
+
+logging:
+  level:
+    com.svs.maritime: DEBUG
+    org.springframework.web: DEBUG

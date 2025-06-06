@@ -1,0 +1,24 @@
+# Configuration pour la production
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/maritime_prod}
+    username: ${DATABASE_USER:maritime_prod}
+    password: ${DATABASE_PASSWORD:changeme}
+    hikari:
+      maximum-pool-size: 30
+
+maritime:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY:changeme-in-production}
+
+logging:
+  level:
+    ROOT: WARN
+    com.svs.maritime: INFO
+  file:
+    name: /var/log/maritime-backend/application.log
