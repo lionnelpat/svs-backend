@@ -1,5 +1,5 @@
-# Makefile pour le projet Maritime Backend - SVS Dakar
-# 🚢 API Backend pour la gestion des factures maritimes
+# Makefile pour le projet SVS Backend - Dakar
+# 🚢 API Backend pour la gestion des factures et dépenses maritimes
 
 # Variables
 APP_NAME = svs-backend
@@ -7,8 +7,8 @@ VERSION = 1.0.0
 JAVA_VERSION = 17
 MAVEN_OPTS = -Dmaven.test.skip=false
 DOCKER_COMPOSE_FILE = docker-compose.yml
-DB_CONTAINER = maritime-postgres
-PGADMIN_CONTAINER = maritime-pgadmin
+DB_CONTAINER = svs-postgres
+PGADMIN_CONTAINER = svs-pgadmin
 
 # Couleurs pour les messages
 GREEN = \033[0;32m
@@ -21,7 +21,7 @@ BLUE = \033[0;34m
 
 # Commande par défaut
 help: ## 📋 Afficher l'aide
-	@echo "$(BLUE)🚢 Makefile pour Maritime Backend - SVS Dakar$(NC)"
+	@echo "$(BLUE)🚢 Makefile pour SVS Backend - Dakar$(NC)"
 	@echo ""
 	@echo "$(GREEN)Commandes disponibles :$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}'
@@ -91,9 +91,10 @@ test-coverage: ## 📊 Tests avec couverture de code
 # =============================================================================
 
 run: ## 🚀 Démarrer l'application (profil dev)
-	@echo "$(GREEN)🚀 Démarrage de l'application Maritime Backend...$(NC)"
+	@echo "$(GREEN)🚀 Démarrage de l'application SVS Backend...$(NC)"
 	@echo "$(BLUE)📍 URL: http://localhost:8080/api$(NC)"
 	@echo "$(BLUE)📚 Swagger: http://localhost:8080/api/swagger-ui.html$(NC)"
+	@echo "$(BLUE)🏢 Companies API: http://localhost:8080/api/companies$(NC)"
 	mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 run-dev: ## 🚀 Démarrer en mode développement
@@ -111,7 +112,7 @@ run-background: ## 🚀 Démarrer en arrière-plan
 
 stop: ## ⏹️ Arrêter l'application
 	@echo "$(YELLOW)⏹️ Arrêt de l'application...$(NC)"
-	pkill -f "maritime-backend" || true
+	pkill -f "svs-backend" || true
 	@echo "$(GREEN)✅ Application arrêtée$(NC)"
 
 # =============================================================================
@@ -160,17 +161,17 @@ db-stop: ## 🗄️ Arrêter PostgreSQL
 
 db-connect: ## 🗄️ Se connecter à PostgreSQL
 	@echo "$(GREEN)🗄️ Connexion à PostgreSQL...$(NC)"
-	docker exec -it $(DB_CONTAINER) psql -U postgres -d maritime_db
+	docker exec -it $(DB_CONTAINER) psql -U postgres -d svs_db
 
 db-reset: ## 🗄️ Réinitialiser la base de données
 	@echo "$(YELLOW)🗄️ Réinitialisation de la base...$(NC)"
-	docker exec -it $(DB_CONTAINER) psql -U postgres -c "DROP DATABASE IF EXISTS maritime_db;"
-	docker exec -it $(DB_CONTAINER) psql -U postgres -c "CREATE DATABASE maritime_db;"
+	docker exec -it $(DB_CONTAINER) psql -U postgres -c "DROP DATABASE IF EXISTS svs_db;"
+	docker exec -it $(DB_CONTAINER) psql -U postgres -c "CREATE DATABASE svs_db;"
 	@echo "$(GREEN)✅ Base de données réinitialisée$(NC)"
 
 db-backup: ## 💾 Sauvegarder la base de données
 	@echo "$(GREEN)💾 Sauvegarde de la base...$(NC)"
-	docker exec -t $(DB_CONTAINER) pg_dump -U postgres maritime_db > backup_$(shell date +%Y%m%d_%H%M%S).sql
+	docker exec -t $(DB_CONTAINER) pg_dump -U postgres svs_db > backup_$(shell date +%Y%m%d_%H%M%S).sql
 	@echo "$(GREEN)✅ Sauvegarde créée$(NC)"
 
 # =============================================================================
@@ -195,7 +196,7 @@ liquibase-rollback: ## ⏪ Rollback Liquibase (1 changeset)
 
 logs: ## 📋 Voir les logs de l'application
 	@echo "$(GREEN)📋 Logs de l'application...$(NC)"
-	tail -f logs/maritime-backend.log
+	tail -f logs/svs-backend.log
 
 health: ## 💚 Vérifier l'état de l'application
 	@echo "$(GREEN)💚 Vérification de l'état...$(NC)"
@@ -209,8 +210,16 @@ test-api: ## 🧪 Tester l'API
 	@echo "$(GREEN)🧪 Test de l'API...$(NC)"
 	@curl -s http://localhost:8080/api/test/hello | jq '.' || echo "$(RED)❌ API non accessible$(NC)"
 
+test-companies: ## 🏢 Tester l'API Companies
+	@echo "$(GREEN)🏢 Test de l'API Companies...$(NC)"
+	@echo "$(BLUE)GET /api/companies$(NC)"
+	@curl -s http://localhost:8080/api/companies | jq '.' || echo "$(RED)❌ API Companies non accessible$(NC)"
+	@echo ""
+	@echo "$(BLUE)GET /api/companies/active$(NC)"
+	@curl -s http://localhost:8080/api/companies/active | jq '.' || echo "$(RED)❌ API Companies active non accessible$(NC)"
+
 status: ## 📊 Statut complet du projet
-	@echo "$(BLUE)📊 Statut du projet Maritime Backend$(NC)"
+	@echo "$(BLUE)📊 Statut du projet SVS Backend$(NC)"
 	@echo "$(GREEN)🔍 Vérification des composants...$(NC)"
 	@echo ""
 	@echo "🐳 Docker:"
@@ -221,6 +230,9 @@ status: ## 📊 Statut complet du projet
 	@echo ""
 	@echo "🚀 Application:"
 	@curl -s http://localhost:8080/api/management/health > /dev/null && echo "$(GREEN)✅ Application accessible$(NC)" || echo "$(RED)❌ Application non accessible$(NC)"
+	@echo ""
+	@echo "🏢 API Companies:"
+	@curl -s http://localhost:8080/api/companies > /dev/null && echo "$(GREEN)✅ API Companies accessible$(NC)" || echo "$(RED)❌ API Companies non accessible$(NC)"
 
 # =============================================================================
 # QUALITÉ DE CODE
@@ -233,6 +245,21 @@ lint: ## 🔍 Vérifier la qualité du code
 format: ## 🎨 Formater le code
 	@echo "$(GREEN)🎨 Formatage du code...$(NC)"
 	mvn spotless:apply
+
+# =============================================================================
+# TESTS SPÉCIFIQUES COMPANIES
+# =============================================================================
+
+test-companies-crud: ## 🧪 Tester CRUD Companies
+	@echo "$(GREEN)🧪 Test CRUD Companies...$(NC)"
+	@echo "$(BLUE)1. Création d'une compagnie de test$(NC)"
+	@curl -X POST http://localhost:8080/api/companies \
+		-H "Content-Type: application/json" \
+		-d '{"nom":"Test Company","raisonSociale":"Test SARL","adresse":"Dakar","ville":"Dakar","pays":"Sénégal","telephone":"+221123456789","email":"test@company.sn"}' \
+		| jq '.' || echo "$(RED)❌ Création échouée$(NC)"
+	@echo ""
+	@echo "$(BLUE)2. Liste des compagnies$(NC)"
+	@curl -s http://localhost:8080/api/companies | jq '.companies[] | {id, nom, email}' || echo "$(RED)❌ Liste échouée$(NC)"
 
 # =============================================================================
 # DÉPLOIEMENT
@@ -248,7 +275,7 @@ package: ## 📦 Créer le package de déploiement
 # =============================================================================
 
 setup: ## ⚡ Installation complète du projet
-	@echo "$(BLUE)⚡ Installation complète du projet Maritime Backend$(NC)"
+	@echo "$(BLUE)⚡ Installation complète du projet SVS Backend$(NC)"
 	$(MAKE) clean
 	$(MAKE) install
 	$(MAKE) docker-up
@@ -275,6 +302,15 @@ ci: ## 🔄 Workflow CI (tests + build)
 	$(MAKE) test
 	$(MAKE) build
 
+demo: ## 🎯 Démonstration complète de l'API
+	@echo "$(BLUE)🎯 Démonstration de l'API SVS$(NC)"
+	$(MAKE) test-api
+	@echo ""
+	$(MAKE) test-companies
+	@echo ""
+	@echo "$(GREEN)✅ Démonstration terminée$(NC)"
+	@echo "$(BLUE)📚 Consultez Swagger: http://localhost:8080/api/swagger-ui.html$(NC)"
+
 # =============================================================================
 # AIDE DÉTAILLÉE
 # =============================================================================
@@ -285,10 +321,20 @@ info: ## ℹ️ Informations sur le projet
 	@echo "🏷️ Version: $(VERSION)"
 	@echo "☕ Java: $(JAVA_VERSION)"
 	@echo "🌍 Environnement: Développement"
-	@echo "🏢 Entreprise: SVS Maritime - Dakar, Sénégal"
+	@echo "🏢 Entreprise: SVS - Dakar, Sénégal"
 	@echo ""
 	@echo "🔗 URLs importantes:"
 	@echo "  • API: http://localhost:8080/api"
 	@echo "  • Swagger: http://localhost:8080/api/swagger-ui.html"
 	@echo "  • Health: http://localhost:8080/api/management/health"
+	@echo "  • Companies: http://localhost:8080/api/companies"
 	@echo "  • PgAdmin: http://localhost:5050"
+	@echo ""
+	@echo "🚀 Endpoints Companies disponibles:"
+	@echo "  • GET    /api/companies"
+	@echo "  • POST   /api/companies"
+	@echo "  • GET    /api/companies/{id}"
+	@echo "  • PUT    /api/companies/{id}"
+	@echo "  • DELETE /api/companies/{id}"
+	@echo "  • GET    /api/companies/active"
+	@echo "  • POST   /api/companies/search"
