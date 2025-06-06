@@ -11,12 +11,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
  * Classe abstraite de base pour toutes les entités avec audit automatique
  * Fournit les champs d'audit standards : created_at, updated_at, created_by, updated_by
+ * SVS - Dakar, Sénégal
  */
 @Getter
 @Setter
