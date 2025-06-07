@@ -97,4 +97,14 @@ public interface CompanyMapper {
             }
         }
     }
+
+    @Named("idToCompany")
+    default Company toEntity(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Company company = new Company();
+        company.setId(id);
+        return company;
+    }
 }

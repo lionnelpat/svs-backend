@@ -8,11 +8,9 @@ spring:
     allow-bean-definition-overriding: false
     banner-mode: console
 
-  # DÉSACTIVER SPRING SECURITY TEMPORAIREMENT
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  security:
+    filter:
+      disable: false
 
   # Configuration de la base de données PostgreSQL
   datasource:
@@ -45,6 +43,8 @@ spring:
         order_inserts: true
         order_updates: true
         generate_statistics: false
+        globally_quoted_identifiers: false
+        use_sql_comments: false
 
   # Configuration Liquibase - DÉSACTIVÉ temporairement
   liquibase:
@@ -61,7 +61,6 @@ spring:
         - "http://localhost:4200"
         - "https://localhost:4200"
         - "http://172.16.47.91:4200"
-        - "http://172.16.47.91:8080"
       allowed-methods: "*"
       allowed-headers: "*"
       allow-credentials: true
@@ -70,8 +69,6 @@ spring:
 # Configuration du serveur
 server:
   port: 8080
-  servlet:
-    context-path: /api
   # Écouter sur toutes les interfaces réseau
   address: 0.0.0.0
   compression:
@@ -137,10 +134,7 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+    url: /api/v3/api-docs
     operationsSorter: method
     disable-swagger-default-url: true
   show-actuator: true
-  group-configs:
-    - group: 'maritime-api'
-      display-name: 'API Maritime SVS'
-      paths-to-match: '/api/**'

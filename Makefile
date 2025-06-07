@@ -174,6 +174,52 @@ db-backup: ## 💾 Sauvegarder la base de données
 	docker exec -t $(DB_CONTAINER) pg_dump -U postgres svs_db > backup_$(shell date +%Y%m%d_%H%M%S).sql
 	@echo "$(GREEN)✅ Sauvegarde créée$(NC)"
 
+db-fix-constraints: ## 🔧 Corriger les contraintes de base de données
+	@echo "$(GREEN)🔧 Correction des contraintes de base de données...$(NC)"
+	docker exec -i $(DB_CONTAINER) psql -U postgres -d svs_db << 'EOF'
+	-- Supprimer les contraintes CHECK problématiques
+	ALTER TABLE ships DROP CONSTRAINT IF EXISTS ships_type_navire_check;
+	ALTER TABLE ships DROP CONSTRAINT IF EXISTS ships_pavillon_check;
+	ALTER TABLE ships DROP CONSTRAINT IF EXISTS ships_classification_check;
+
+	-- Vérifier les contraintes restantes
+	SELECT conname as constraint_name FROM pg_constraint
+	WHERE conrelid = (SELECT oid FROM pg_class WHERE relname = 'ships')
+	    AND contype = 'c';
+	EOF
+	@echo "$(GREEN)✅ Contraintes corrigées$(NC)"
+
+db-check-constraints: ## 🔍 Vérifier les contraintes existantes
+	@echo "$(GREEN)🔍 Vérification des contraintes...$(NC)"
+	docker exec -i $(DB_CONTAINER) psql -U postgres -d svs_db << 'EOF'
+	SELECT
+	    tc.constraint_name,
+	    tc.constraint_type,
+	    cc.check_clause
+	FROM information_schema.table_constraints tc
+	LEFT JOIN information_schema.check_constraints cc
+	    ON tc.constraint_name = cc.constraint_name
+	WHERE tc.table_name = 'ships'
+	    AND tc.table_schema = 'public';
+	EOF
+
+db-recreate-schema: ## 🗑️ Recréer le schéma de base (ATTENTION: efface les données)
+	@echo "$(RED)⚠️ ATTENTION: Cette commande va supprimer toutes les données!$(NC)"
+	@read -p "Êtes-vous sûr? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
+	@echo "$(YELLOW)🗑️ Suppression et recréation du schéma...$(NC)"
+	docker exec -i $(DB_CONTAINER) psql -U postgres << 'EOF'
+	DROP DATABASE IF EXISTS svs_db;
+	CREATE DATABASE svs_db;
+	EOF
+	@echo "$(GREEN)✅ Schéma recréé$(NC)"
+
+test-ship-creation: ## 🧪 Tester la création d'un navire
+	@echo "$(GREEN)🧪 Test de création d'un navire...$(NC)"
+	@curl -X POST http://localhost:8080/api/v1/ships \
+		-H "Content-Type: application/json" \
+		-d '{"nom":"Test Ship","numeroIMO":"9123456","pavillon":"Sénégal","typeNavire":"Cargo","compagnieId":1,"portAttache":"Dakar","numeroAppel":"6V7ABC","numeroMMSI":"663123456","classification":"Bureau Veritas"}' \
+		| jq '.' || echo "$(RED)❌ Création échouée$(NC)"
+
 # =============================================================================
 # LIQUIBASE
 # =============================================================================
@@ -253,13 +299,18 @@ format: ## 🎨 Formater le code
 test-companies-crud: ## 🧪 Tester CRUD Companies
 	@echo "$(GREEN)🧪 Test CRUD Companies...$(NC)"
 	@echo "$(BLUE)1. Création d'une compagnie de test$(NC)"
-	@curl -X POST http://localhost:8080/api/companies \
+	@curl -X POST http://localhost:8080/api/v1/companies \
 		-H "Content-Type: application/json" \
 		-d '{"nom":"Test Company","raisonSociale":"Test SARL","adresse":"Dakar","ville":"Dakar","pays":"Sénégal","telephone":"+221123456789","email":"test@company.sn"}' \
 		| jq '.' || echo "$(RED)❌ Création échouée$(NC)"
 	@echo ""
 	@echo "$(BLUE)2. Liste des compagnies$(NC)"
-	@curl -s http://localhost:8080/api/companies | jq '.companies[] | {id, nom, email}' || echo "$(RED)❌ Liste échouée$(NC)"
+	@curl -s http://localhost:8080/api/v1/companies | jq '.companies[] | {id, nom, email}' || echo "$(RED)❌ Liste échouée$(NC)"
+
+
+test-ships: ## 🚢 Tester l'API Ships
+	@echo "$(GREEN)🚢 Test de l'API Ships...$(NC)"
+	@curl -s http://localhost:8080/api/v1/ships | jq '.ships[] | {id, nom, numeroIMO, typeNavire}' || echo "$(RED)❌ API Ships non accessible$(NC)"
 
 # =============================================================================
 # DÉPLOIEMENT
@@ -307,6 +358,8 @@ demo: ## 🎯 Démonstration complète de l'API
 	$(MAKE) test-api
 	@echo ""
 	$(MAKE) test-companies
+	@echo ""
+	$(MAKE) test-ships
 	@echo ""
 	@echo "$(GREEN)✅ Démonstration terminée$(NC)"
 	@echo "$(BLUE)📚 Consultez Swagger: http://localhost:8080/api/swagger-ui.html$(NC)"

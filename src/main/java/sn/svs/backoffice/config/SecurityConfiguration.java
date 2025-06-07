@@ -7,12 +7,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * Configuration de sécurité pour l'application Maritime SVS
@@ -25,44 +33,79 @@ public class SecurityConfiguration {
 
     private final CorsConfigurationSource corsConfigurationSource;
 
-    /**
-     * Configuration de la chaîne de filtres de sécurité
-     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.info("Configuration de la sécurité Spring Security - Mode DÉVELOPPEMENT");
-
         http
                 // Configuration CORS
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .cors(withDefaults())
 
-                // Désactivation CSRF pour les API REST
-                .csrf(AbstractHttpConfigurer::disable)
+                // Désactivation CSRF
+                .csrf(csrf -> csrf.disable())
 
-                // Configuration des headers de sécurité
+                // Configuration des headers
                 .headers(headers -> headers
                         .contentTypeOptions(contentTypeOptions -> {})
                         .frameOptions(frameOptions -> frameOptions.deny())
-                        .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .referrerPolicy(referrer -> referrer
+                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                 )
 
-                // Configuration de session stateless pour JWT
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Configuration des sessions
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // Configuration des autorisations - TRÈS PERMISSIVE POUR LE DÉVELOPPEMENT
+                // Configuration des autorisations
                 .authorizeHttpRequests(authz -> authz
-                        // TOUT EST AUTORISÉ POUR LE MOMENT - À MODIFIER EN PRODUCTION
-                        .requestMatchers("/**").permitAll()
-                        .anyRequest().permitAll()
-                );
+                        // Swagger
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
 
-        log.info("✅ Configuration de sécurité appliquée - TOUS LES ENDPOINTS SONT OUVERTS");
+                        // Actuator
+                        .requestMatchers("/management/**").permitAll()
+
+                        // API - Notez le pattern avec le context-path
+                        .requestMatchers("/api/**").permitAll()
+
+                        // Toutes autres requêtes
+                        .anyRequest().denyAll() // Tout ce qui n'est pas explicitement autorisé est refusé
+                )
+
+                // Désactivation de l'authentification de base
+                .httpBasic(basic -> basic.disable());
+
         return http.build();
     }
 
-    /**
-     * Encodeur de mot de passe BCrypt
-     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "http://172.16.47.91:4200"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Link",
+                "X-Total-Count",
+                "X-Maritime-Alert"
+        ));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration); 
+        return source;
+    }
+
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

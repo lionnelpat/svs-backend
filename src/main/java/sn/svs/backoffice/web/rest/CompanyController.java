@@ -28,7 +28,7 @@ import java.util.Optional;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/companies")
+@RequestMapping("api/v1/companies")
 @RequiredArgsConstructor
 @Tag(name = "Companies", description = "API de gestion des compagnies maritimes")
 public class CompanyController {
