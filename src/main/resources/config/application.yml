@@ -131,10 +131,18 @@ management:
 # Configuration OpenAPI/Swagger
 springdoc:
   api-docs:
+    enabled: true
     path: /v3/api-docs
   swagger-ui:
+    enabled: true
     path: /swagger-ui.html
-    url: /api/v3/api-docs
+    try-it-out-enabled: true
     operationsSorter: method
     disable-swagger-default-url: true
+    doc-expansion: none
+    tags-sorter: alpha
   show-actuator: true
+  group-configs:
+    - group: 'svs-api'
+      display-name: 'SVS Maritime API'
+      paths-to-match: '/api/v1/**'
