@@ -105,14 +105,4 @@ public class Company extends AbstractAuditingEntity {
     public void deactivate() {
         this.setActive(false);
     }
-
-    @PrePersist
-    protected void onCreate() {
-        super.prePersist();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        super.preUpdate();
-    }
 }

@@ -1,8 +1,6 @@
 package sn.svs.backoffice.service;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import sn.svs.backoffice.domain.Company;
 import sn.svs.backoffice.dto.CompanyDTO;
 
 import java.util.List;

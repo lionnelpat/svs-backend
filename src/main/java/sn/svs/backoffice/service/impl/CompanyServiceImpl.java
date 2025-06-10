@@ -13,7 +13,6 @@ import sn.svs.backoffice.domain.Company;
 import sn.svs.backoffice.dto.CompanyDTO;
 import sn.svs.backoffice.exceptions.DuplicateResourceException;
 import sn.svs.backoffice.exceptions.ResourceNotFoundException;
-import sn.svs.backoffice.exceptions.ValidationException;
 import sn.svs.backoffice.mapper.CompanyMapper;
 import sn.svs.backoffice.repository.CompanyRepository;
 import sn.svs.backoffice.service.CompanyService;

@@ -1,5 +1,7 @@
 package sn.svs.backoffice.config;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -10,12 +12,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import sn.svs.backoffice.exceptions.BusinessException;
-import sn.svs.backoffice.exceptions.ResourceNotFoundException;
 import sn.svs.backoffice.exceptions.DuplicateResourceException;
+import sn.svs.backoffice.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

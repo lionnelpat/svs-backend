@@ -22,8 +22,6 @@ public interface ExpenseCategoryMapper {
      * Convertit une CreateRequest en entité ExpenseCategory
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "active", constant = "true")
     ExpenseCategory toEntity(ExpenseCategoryDTO.CreateRequest request);
 
