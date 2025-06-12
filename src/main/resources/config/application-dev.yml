@@ -19,5 +19,5 @@ spring:
 
 logging:
   level:
-    com.svs.maritime: DEBUG
+    sn.svs.backoffice: DEBUG
     org.springframework.web: DEBUG

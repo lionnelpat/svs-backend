@@ -127,4 +127,6 @@ public interface ExpenseSupplierRepository extends JpaRepository<ExpenseSupplier
         GROUP BY es.active
         """)
     List<Object[]> getSupplierStats();
+
+    boolean existsByIdAndActiveTrue(Long fournisseurId);
 }

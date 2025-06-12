@@ -140,6 +140,8 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Lo
         """)
     List<Object[]> getPaymentMethodStats();
 
+    boolean existsByIdAndActifTrue(Long paymentMethodId);
+
 //    /**
 //     * Vérifie si un mode de paiement est utilisé dans des dépenses
 //     */

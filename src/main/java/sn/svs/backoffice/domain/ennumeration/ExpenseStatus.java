@@ -8,17 +8,15 @@ import lombok.Getter;
  */
 @Getter
 public enum ExpenseStatus {
-    BROUILLON("Brouillon"),
-    EN_ATTENTE("En attente de validation"),
-    VALIDEE("Validée"),
-    PAYEE("Payée"),
+    EN_ATTENTE("En attente"),
+    APPROUVEE("Approuvée"),
     REJETEE("Rejetée"),
-    ANNULEE("Annulée");
+    PAYEE("Payée");
 
-    private final String displayName;
+    private final String label;
 
-    ExpenseStatus(String displayName) {
-        this.displayName = displayName;
+    ExpenseStatus(String label) {
+        this.label = label;
     }
 
 }

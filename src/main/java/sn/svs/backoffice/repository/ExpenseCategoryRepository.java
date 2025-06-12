@@ -100,4 +100,6 @@ public interface ExpenseCategoryRepository extends JpaRepository<ExpenseCategory
         GROUP BY ec.active
         """)
     List<Object[]> getCategoryStats();
+
+    boolean existsByIdAndActiveTrue(Long categorieId);
 }
