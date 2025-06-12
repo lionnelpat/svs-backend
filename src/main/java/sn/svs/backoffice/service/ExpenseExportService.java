@@ -20,13 +20,16 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import sn.svs.backoffice.domain.Expense;
 import sn.svs.backoffice.dto.ExpenseDTO;
 import sn.svs.backoffice.repository.ExpenseRepository;
+import sn.svs.backoffice.specification.ExpenseSpecification;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -153,7 +156,7 @@ public class ExpenseExportService {
 
     private void addPdfHeader(Document document, PdfFont headerFont, ExpenseDTO.SearchFilter filter) {
         // Titre principal
-        Paragraph title = new Paragraph("SVS - RAPPORT DES DÉPENSES MARITIMES")
+        Paragraph title = new Paragraph("SVS - RAPPORT DES DÉPENSES")
                 .setFont(headerFont)
                 .setFontSize(18)
                 .setFontColor(SVS_PRIMARY)
@@ -461,18 +464,12 @@ public class ExpenseExportService {
 
         // Si filtres spécifiques
         if (hasFilters(filter)) {
-            return expenseRepository.findWithFilters(
-                    filter.getCategorieId(),
-                    filter.getFournisseurId(),
-                    filter.getStatut(),
-                    filter.getPaymentMethodId(),
-                    filter.getDevise(),
-                    filter.getMinAmount(),
-                    filter.getMaxAmount(),
-                    filter.getStartDate(),
-                    filter.getEndDate(),
-                    pageable
-            ).getContent();
+            // Utilisation des Specifications pour requête dynamique
+            Specification<Expense> specification = ExpenseSpecification.withFilters(filter);
+
+
+            log.debug("Exécution de la requête avec specification");
+            return expenseRepository.findAll(specification, pageable).getContent();
         }
 
         // Toutes les dépenses actives

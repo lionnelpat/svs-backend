@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.svs.backoffice.domain.Expense;
@@ -21,6 +22,7 @@ import sn.svs.backoffice.repository.ExpenseSupplierRepository;
 import sn.svs.backoffice.repository.PaymentMethodRepository;
 import sn.svs.backoffice.service.ExpenseExportService;
 import sn.svs.backoffice.service.ExpenseService;
+import sn.svs.backoffice.specification.ExpenseSpecification;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -191,19 +193,15 @@ public class ExpenseServiceImpl implements ExpenseService {
             return search(filter.getSearch(), pageable);
         }
 
-        // Filtres multiples
-        Page<Expense> expensePage = expenseRepository.findWithFilters(
-                filter.getCategorieId(),
-                filter.getFournisseurId(),
-                filter.getStatut(),
-                filter.getPaymentMethodId(),
-                filter.getDevise(),
-                filter.getMinAmount(),
-                filter.getMaxAmount(),
-                filter.getStartDate(),
-                filter.getEndDate(),
-                pageable
-        );
+        // Utilisation des Specifications pour requête dynamique
+        Specification<Expense> specification = ExpenseSpecification.withFilters(filter);
+
+
+        log.debug("Exécution de la requête avec specification");
+        Page<Expense> expensePage = expenseRepository.findAll(specification, pageable);
+
+        log.debug("Résultats trouvés: {} dépenses sur {} pages",
+                expensePage.getTotalElements(), expensePage.getTotalPages());
 
         return expenseMapper.toPageResponse(expensePage);
     }

@@ -51,31 +51,31 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
     /**
      * Recherche avec filtres multiples
      */
-    @Query("SELECT e FROM Expense e " +
-            "LEFT JOIN FETCH e.categorie c " +
-            "LEFT JOIN FETCH e.fournisseur f " +
-            "LEFT JOIN FETCH e.paymentMethod pm " +
-            "WHERE e.active = true " +
-            "AND (:categorieId IS NULL OR e.categorieId = :categorieId) " +
-            "AND (:fournisseurId IS NULL OR e.fournisseurId = :fournisseurId) " +
-            "AND (:statut IS NULL OR e.statut = :statut) " +
-            "AND (:paymentMethodId IS NULL OR e.paymentMethodId = :paymentMethodId) " +
-            "AND (:devise IS NULL OR e.devise = :devise) " +
-            "AND (:minAmount IS NULL OR e.montantXOF >= :minAmount) " +
-            "AND (:maxAmount IS NULL OR e.montantXOF <= :maxAmount) " +
-            "AND (:startDate IS NULL OR e.dateDepense >= :startDate) " +
-            "AND (:endDate IS NULL OR e.dateDepense <= :endDate)")
-    Page<Expense> findWithFilters(
-            @Param("categorieId") Long categorieId,
-            @Param("fournisseurId") Long fournisseurId,
-            @Param("statut") ExpenseStatus statut,
-            @Param("paymentMethodId") Long paymentMethodId,
-            @Param("devise") Currency devise,
-            @Param("minAmount") BigDecimal minAmount,
-            @Param("maxAmount") BigDecimal maxAmount,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            Pageable pageable);
+//    @Query("SELECT e FROM Expense e " +
+//            "LEFT JOIN FETCH e.categorie c " +
+//            "LEFT JOIN FETCH e.fournisseur f " +
+//            "LEFT JOIN FETCH e.paymentMethod pm " +
+//            "WHERE e.active = true " +
+//            "AND (:categorieId IS NULL OR e.categorieId = :categorieId) " +
+//            "AND (:fournisseurId IS NULL OR e.fournisseurId = :fournisseurId) " +
+//            "AND (:statut IS NULL OR e.statut = :statut) " +
+//            "AND (:paymentMethodId IS NULL OR e.paymentMethodId = :paymentMethodId) " +
+//            "AND (:devise IS NULL OR e.devise = :devise) " +
+//            "AND (:minAmount IS NULL OR e.montantXOF >= :minAmount) " +
+//            "AND (:maxAmount IS NULL OR e.montantXOF <= :maxAmount) " +
+//            "AND (:startDate IS NULL OR e.dateDepense >= :startDate) " +
+//            "AND (:endDate IS NULL OR e.dateDepense <= :endDate)")
+//    Page<Expense> findWithFilters(
+//            @Param("categorieId") Long categorieId,
+//            @Param("fournisseurId") Long fournisseurId,
+//            @Param("statut") ExpenseStatus statut,
+//            @Param("paymentMethodId") Long paymentMethodId,
+//            @Param("devise") Currency devise,
+//            @Param("minAmount") BigDecimal minAmount,
+//            @Param("maxAmount") BigDecimal maxAmount,
+//            @Param("startDate") LocalDate startDate,
+//            @Param("endDate") LocalDate endDate,
+//            Pageable pageable);
 
     /**
      * Recherche par catégorie avec pagination

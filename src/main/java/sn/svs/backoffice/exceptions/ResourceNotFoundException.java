@@ -3,7 +3,7 @@ package sn.svs.backoffice.exceptions;
 /**
  * Exception pour les ressources non trouvées
  */
-public class ResourceNotFoundException extends RuntimeException {
+public class ResourceNotFoundException {
 
     public ResourceNotFoundException(String message) {
         super(message);
