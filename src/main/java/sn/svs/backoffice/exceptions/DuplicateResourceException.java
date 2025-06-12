@@ -3,7 +3,7 @@ package sn.svs.backoffice.exceptions;
 /**
  * Exception pour les ressources déjà existantes
  */
-public class DuplicateResourceException {
+public class DuplicateResourceException extends  RuntimeException {
 
     public DuplicateResourceException(String message) {
         super(message);
