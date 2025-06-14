@@ -1,0 +1,22 @@
+# Configuration pour les tests
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/staging_db
+    username: staging_user
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 30
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  liquibase:
+    enabled: false
+
+server:
+  port: 8080

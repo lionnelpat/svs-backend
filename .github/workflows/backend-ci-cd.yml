@@ -1,0 +1,58 @@
+name: CI/CD Backend Staging
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build avec Maven
+        # On active le profil 'staging' et on skippe les tests pour accélérer le build de démo
+        # Dans un vrai scénario, on lancerait les tests : mvn -B package -Pstaging
+        run: mvn -B clean package -DskipTests -Pstaging
+
+      - name: Upload de l'artefact JAR
+        uses: actions/upload-artifact@v3
+        with:
+          name: spring-boot-jar
+          path: target/*.jar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download de l'artefact JAR
+        uses: actions/download-artifact@v3
+        with:
+          name: spring-boot-jar
+
+      - name: Renomme le JAR
+        run: mv *.jar svs-spring-app.jar
+
+      - name: Déploiement sur le VPS via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          source: "svs-spring-app.jar"
+          target: "/home/deployer/new_artifact" # On dépose dans un dossier temporaire
+
+      - name: Exécute le script de déploiement
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: /home/deployer/deploy_backend.sh
