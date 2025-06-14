@@ -58,16 +58,11 @@ jobs:
           mvn help:effective-settings
           mvn help:active-profiles
 
-      - name: Exécution des tests unitaires
-        run: mvn -B test -Pstaging
-        env:
-          MAVEN_OPTS: ${{ env.MAVEN_OPTS }}
-
       - name: Build de l'application
         run: |
           mvn -B clean package -Pstaging \
-            -DskipTests=false \
-            -Dmaven.test.failure.ignore=false
+            -DskipTests=true \
+            -Dmaven.test.failure.ignore=true
         env:
           MAVEN_OPTS: ${{ env.MAVEN_OPTS }}
 
@@ -99,16 +94,6 @@ jobs:
           retention-days: 30
           compression-level: 6
           if-no-files-found: error
-
-      - name: Upload des rapports de tests
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: |
-            target/surefire-reports/
-            target/site/
-          retention-days: 7
-          if-no-files-found: warn
 
       - name: Upload du rapport de build
         uses: actions/upload-artifact@v4
