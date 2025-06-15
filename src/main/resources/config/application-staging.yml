@@ -2,7 +2,7 @@
 spring:
   config:
     activate:
-      on-profile: test
+      on-profile: staging
 
   datasource:
     url: jdbc:postgresql://localhost:5432/staging_db
