@@ -10,7 +10,7 @@
 	</parent>
 
 	<groupId>sn.svsapp</groupId>
-	<artifactId>backend</artifactId>
+	<artifactId>svs-backend-app</artifactId>
 	<version>1.0.0</version>
 	<name>svs-backend-app</name>
 	<description>API Backend pour la gestion des factures de Salane Vision - SVS Dakar</description>
