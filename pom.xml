@@ -9,11 +9,11 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>com.svs</groupId>
-	<artifactId>maritime-backend</artifactId>
+	<groupId>sn.svsapp</groupId>
+	<artifactId>backend</artifactId>
 	<version>1.0.0</version>
-	<name>maritime-backend</name>
-	<description>API Backend pour la gestion des factures maritimes - SVS Dakar</description>
+	<name>svs-backend-app</name>
+	<description>API Backend pour la gestion des factures de Salane Vision - SVS Dakar</description>
 
 	<properties>
 		<java.version>17</java.version>
