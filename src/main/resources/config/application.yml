@@ -54,20 +54,6 @@ spring:
   profiles:
     active: dev
 
-  # Configuration CORS pour Angular
-  web:
-    cors:
-      allowed-origins: "*"
-      allowed-methods: "*"
-      allowed-headers: "*"
-      allow-credentials: true
-      max-age: 3600
-
-security:
-  enabled: false
-
-cors:
-  allowed-origins: "*"
 # Configuration du serveur
 server:
   port: 8080

@@ -2,9 +2,9 @@ name: CI/CD Backend Staging - SVS Maritime
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
   pull_request:  # Ajout pour tester les PR
-    branches: [ develop ]
+    branches: [ main ]
   workflow_dispatch:  # Permet de déclencher manuellement le workflow
 
 env:

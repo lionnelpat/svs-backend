@@ -67,7 +67,7 @@ public class SecurityConfiguration {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         configuration.setExposedHeaders(List.of("Authorization", "X-Total-Count"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(false);
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

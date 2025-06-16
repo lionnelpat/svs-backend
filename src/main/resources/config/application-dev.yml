@@ -23,6 +23,15 @@ spring:
     livereload:
       enabled: true
 
+  # Configuration CORS pour Angular
+  web:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
+
 logging:
   level:
     sn.svs.backoffice: DEBUG
