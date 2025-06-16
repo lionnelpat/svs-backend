@@ -10,9 +10,9 @@ spring:
       ddl-auto: update
     show-sql: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/staging_db
-    username: staging_user
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/svs_db
+    username: postgres
+    password: postgres
     hikari:
       maximum-pool-size: 30
 

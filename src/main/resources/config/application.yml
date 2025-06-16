@@ -86,7 +86,7 @@ svs:
 
   # Configuration CORS spécifique
   cors:
-    allowed-origins: "http://localhost:4200,https://localhost:4200"
+    allowed-origins: "*"
     allowed-methods: "*"
     allowed-headers: "*"
     exposed-headers: "Authorization,Link,X-Total-Count,X-Maritime-Alert"
