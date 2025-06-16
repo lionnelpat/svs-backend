@@ -34,46 +34,27 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Configuration CORS
                 .cors(withDefaults())
-
-                // Désactivation CSRF
                 .csrf(csrf -> csrf.disable())
-
-                // Configuration des headers
                 .headers(headers -> headers
-                        .contentTypeOptions(contentTypeOptions -> {})
-                        .frameOptions(frameOptions -> frameOptions.deny())
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
                         .referrerPolicy(referrer -> referrer
                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                 )
-
-                // Configuration des sessions
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Configuration des autorisations
                 .authorizeHttpRequests(authz -> authz
-                        // Swagger
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/management/**",
+                                "/api/**"
                         ).permitAll()
-
-                        // Actuator
-                        .requestMatchers("/management/**").permitAll()
-
-                        // API - Notez le pattern avec le context-path
-                        .requestMatchers("/api/**").permitAll()
-
-                        // Toutes autres requêtes
-                        .anyRequest().denyAll() // Tout ce qui n'est pas explicitement autorisé est refusé
+                        .anyRequest().authenticated()
                 )
-
-                // Désactivation de l'authentification de base
                 .httpBasic(basic -> basic.disable());
 
         return http.build();
@@ -82,25 +63,15 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:4200",
-                "https://localhost:4200",
-                "http://172.16.47.91:4200",
-                "*"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(Arrays.asList(
-                "Authorization",
-                "Link",
-                "X-Total-Count",
-                "X-Maritime-Alert"
-        ));
+        configuration.setAllowedOrigins(List.of("*")); // ✔ autorise uniquement le domaine frontend
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        configuration.setExposedHeaders(List.of("Authorization", "X-Total-Count"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration); 
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
