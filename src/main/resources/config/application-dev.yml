@@ -27,3 +27,10 @@ logging:
   level:
     sn.svs.backoffice: DEBUG
     org.springframework.web: DEBUG
+
+
+security:
+  enabled: false
+
+cors:
+  allowed-origins: "*"

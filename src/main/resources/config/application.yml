@@ -57,15 +57,17 @@ spring:
   # Configuration CORS pour Angular
   web:
     cors:
-      allowed-origins:
-        - "http://localhost:4200"
-        - "https://localhost:4200"
-        - "http://172.16.47.91:4200"
+      allowed-origins: "*"
       allowed-methods: "*"
       allowed-headers: "*"
       allow-credentials: true
       max-age: 3600
 
+security:
+  enabled: false
+
+cors:
+  allowed-origins: "*"
 # Configuration du serveur
 server:
   port: 8080

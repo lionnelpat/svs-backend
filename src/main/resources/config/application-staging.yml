@@ -18,5 +18,11 @@ spring:
   liquibase:
     enabled: false
 
+security:
+  enabled: false
+
+cors:
+  allowed-origins: "*"
+
 server:
   port: 8080
