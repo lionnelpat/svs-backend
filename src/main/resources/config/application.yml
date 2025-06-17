@@ -55,11 +55,25 @@ spring:
     active: dev
 
 app:
+  frontend:
+    base-url: "http://localhost:3000"  # URL de l'application frontend
   jwt:
     secret: # Clé base64 (sera dans l'étape 12)
     access-token-expiration-ms: 900000  # 15 minutes
     refresh-token-expiration-ms: 86400000  # 24 heures
     issuer: "svs-backoffice"
+
+  email:
+    from: "noreply@salanevision.sn"
+    company-name: "Salane Vision S.a.r.l"
+    company:
+      address: "Zone Industrielle, Port Autonome de Dakar, Sénégal"
+      phone: "+221 33 XXX XX XX"
+      website: "https://www.salanevision.sn"
+    signature:
+      name: "L'équipe SVS Backoffice"
+      title: "Service Informatique"
+
 
 # Configuration du serveur
 server:

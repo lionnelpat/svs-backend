@@ -133,6 +133,27 @@
 			<version>${springdoc.version}</version>
 		</dependency>
 
+		<!-- ========== DÉPENDANCES EMAIL ==========-->
+
+		<!-- Spring Boot Starter Mail -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<!-- Thymeleaf pour les templates d'emails -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
+
+		<!-- Thymeleaf Core (si le starter ne suffit pas) -->
+		<dependency>
+			<groupId>org.thymeleaf</groupId>
+			<artifactId>thymeleaf</artifactId>
+		</dependency>
+
 		<!-- Outils de développement -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
