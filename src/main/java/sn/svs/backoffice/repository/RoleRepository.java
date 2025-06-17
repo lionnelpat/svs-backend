@@ -1,5 +1,7 @@
 package sn.svs.backoffice.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,6 +43,11 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
      * Trouve tous les rôles inactifs
      */
     List<Role> findByIsActiveFalse();
+
+
+    Page<Role> findByIsActive(Boolean isActive, Pageable pageable);
+
+    Page<Role> findByIsActiveIsFalse(Boolean isActive, Pageable pageable);
 
     // ========== RECHERCHE MULTIPLE ==========
 
