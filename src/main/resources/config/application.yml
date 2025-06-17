@@ -54,6 +54,13 @@ spring:
   profiles:
     active: dev
 
+app:
+  jwt:
+    secret: # Clé base64 (sera dans l'étape 12)
+    access-token-expiration-ms: 900000  # 15 minutes
+    refresh-token-expiration-ms: 86400000  # 24 heures
+    issuer: "svs-backoffice"
+
 # Configuration du serveur
 server:
   port: 8080
