@@ -134,6 +134,9 @@ public class User implements UserDetails {
     // Implémentation de UserDetails pour Spring Security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (roles == null || roles.isEmpty()) {
+            return Set.of(); // Évite les NullPointerException
+        }
         return roles.stream()
                 .map(role -> (GrantedAuthority) role)
                 .collect(Collectors.toSet());
@@ -180,11 +183,11 @@ public class User implements UserDetails {
     }
 
     public boolean isAdmin() {
-        return hasRole(Role.RoleName.ROLE_ADMIN);
+        return hasRole(Role.RoleName.ADMIN);
     }
 
     public boolean isManager() {
-        return hasRole(Role.RoleName.ROLE_MANAGER);
+        return hasRole(Role.RoleName.MANAGER);
     }
 
     public void incrementLoginAttempts() {

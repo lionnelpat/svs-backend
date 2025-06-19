@@ -106,13 +106,13 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     /**
      * Trouve les rôles par défaut (les 3 rôles principaux)
      */
-    @Query("SELECT r FROM Role r WHERE r.name IN ('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_USER')")
+    @Query("SELECT r FROM Role r WHERE r.name IN ('ADMIN', 'MANAGER', 'USER')")
     List<Role> findDefaultRoles();
 
     /**
      * Vérifie si tous les rôles par défaut existent
      */
-    @Query("SELECT COUNT(r) FROM Role r WHERE r.name IN ('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_USER')")
+    @Query("SELECT COUNT(r) FROM Role r WHERE r.name IN ('ADMIN', 'MANAGER', 'USER')")
     Long countDefaultRoles();
 
     // ========== MÉTHODES UTILITAIRES ==========
@@ -120,25 +120,25 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     /**
      * Trouve le rôle ADMIN
      */
-    @Query("SELECT r FROM Role r WHERE r.name = 'ROLE_ADMIN'")
+    @Query("SELECT r FROM Role r WHERE r.name = 'ADMIN'")
     Optional<Role> findAdminRole();
 
     /**
      * Trouve le rôle MANAGER
      */
-    @Query("SELECT r FROM Role r WHERE r.name = 'ROLE_MANAGER'")
+    @Query("SELECT r FROM Role r WHERE r.name = 'MANAGER'")
     Optional<Role> findManagerRole();
 
     /**
      * Trouve le rôle USER (rôle par défaut)
      */
-    @Query("SELECT r FROM Role r WHERE r.name = 'ROLE_USER'")
+    @Query("SELECT r FROM Role r WHERE r.name = 'USER'")
     Optional<Role> findUserRole();
 
     /**
      * Trouve tous les rôles sauf ADMIN (pour les utilisateurs non-admin)
      */
-    @Query("SELECT r FROM Role r WHERE r.name != 'ROLE_ADMIN' AND r.isActive = true")
+    @Query("SELECT r FROM Role r WHERE r.name != 'ADMIN' AND r.isActive = true")
     List<Role> findNonAdminRoles();
 
     // ========== STATISTIQUES ==========

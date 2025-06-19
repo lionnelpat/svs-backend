@@ -45,6 +45,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // Rechercher l'utilisateur par username ou email
         User user = findUserByUsernameOrEmail(username);
 
+        if (user.getRoles() != null) {
+            log.debug("Utilisateur '{}' chargé avec {} rôle(s): {}",
+                    username,
+                    user.getRoles().size(),
+                    user.getRoles().stream()
+                            .map(role -> role.getName().name())
+                            .toList());
+        } else {
+            log.warn("Utilisateur '{}' chargé SANS rôles !", username);
+        }
+
         // Vérifications de sécurité
         validateUserAccount(user);
 
@@ -182,7 +193,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     private User findUserByUsernameOrEmail(String identifier) {
         // D'abord chercher par username
-        Optional<User> userByUsername = userRepository.findByUsernameIgnoreCase(identifier);
+        Optional<User> userByUsername = userRepository.findByUsernameOrEmailWithRoles(identifier);
 
         if (userByUsername.isPresent()) {
             log.debug("Utilisateur trouvé par username: {}", identifier);
@@ -190,7 +201,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         // Si pas trouvé par username, chercher par email
-        Optional<User> userByEmail = userRepository.findByEmailIgnoreCase(identifier);
+        Optional<User> userByEmail = userRepository.findByEmailWithRoles(identifier);
 
         if (userByEmail.isPresent()) {
             log.debug("Utilisateur trouvé par email: {}", identifier);

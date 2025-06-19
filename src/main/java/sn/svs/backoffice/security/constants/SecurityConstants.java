@@ -10,9 +10,9 @@ public final class SecurityConstants {
     }
 
     // Rôles
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
-    public static final String ROLE_MANAGER = "ROLE_MANAGER";
-    public static final String ROLE_USER = "ROLE_USER";
+    public static final String ROLE_ADMIN = "ADMIN";
+    public static final String ROLE_MANAGER = "MANAGER";
+    public static final String ROLE_USER = "USER";
 
     // Rôles pour annotations (sans préfixe ROLE_)
     public static final String ADMIN = "ADMIN";

@@ -69,9 +69,9 @@ public class Role implements GrantedAuthority {
 
     // Enum pour les noms de rôles
     public enum RoleName {
-        ROLE_ADMIN("Administrateur système"),
-        ROLE_MANAGER("Gestionnaire"),
-        ROLE_USER("Utilisateur standard");
+        ADMIN("Administrateur système"),
+        MANAGER("Gestionnaire"),
+        USER("Utilisateur standard");
 
         private final String displayName;
 

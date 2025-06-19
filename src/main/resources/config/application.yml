@@ -1,4 +1,3 @@
-# Configuration principale pour l'environnement de développement
 spring:
   application:
     name: svs-backend
@@ -12,29 +11,13 @@ spring:
     filter:
       disable: false
 
-  # Configuration de la base de données PostgreSQL
-  datasource:
-    url: jdbc:postgresql://localhost:5432/svs_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      pool-name: Hikari
-      maximum-pool-size: 20
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-
-  # Configuration JPA
+  # Configuration JPA commune
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update # Pour le développement, créer automatiquement les tables
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -54,17 +37,20 @@ spring:
   profiles:
     active: dev
 
+# Configuration du serveur
+server:
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+
+# Configuration de base JWT
 app:
-  frontend:
-    base-url: "http://localhost:3000"  # URL de l'application frontend
   jwt:
-    secret: # Clé base64 (sera dans l'étape 12)
-    access-token-expiration-ms: 900000  # 15 minutes
-    refresh-token-expiration-ms: 86400000  # 24 heures
     issuer: "svs-backoffice"
+    # Les autres valeurs seront définies dans les profils spécifiques
 
   email:
-    from: "noreply@salanevision.sn"
     company-name: "Salane Vision S.a.r.l"
     company:
       address: "Zone Industrielle, Port Autonome de Dakar, Sénégal"
@@ -74,55 +60,12 @@ app:
       name: "L'équipe SVS Backoffice"
       title: "Service Informatique"
 
-
-# Configuration du serveur
-server:
-  port: 8080
-  # Écouter sur toutes les interfaces réseau
-  address: 0.0.0.0
-  compression:
-    enabled: true
-    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
-    min-response-size: 1024
-
-# Configuration de la sécurité JWT
-svs:
-  security:
-    jwt:
-      secret-key: "SVS-Maritime-Dakar-2025-Secret-Key-For-JWT-Token-Generation-Change-In-Production"
-      token-validity-in-seconds: 86400 # 24 heures
-      token-validity-in-seconds-for-remember-me: 2592000 # 30 jours
-
-  # Configuration CORS spécifique
-  cors:
-    allowed-origins: "*"
-    allowed-methods: "*"
-    allowed-headers: "*"
-    exposed-headers: "Authorization,Link,X-Total-Count,X-Maritime-Alert"
-    allow-credentials: true
-    max-age: 1800
-
-# Configuration des logs
-logging:
-  level:
-    ROOT: INFO
-    com.svs.maritime: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    liquibase: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/maritime-backend.log
-
 # Configuration Actuator
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
       base-path: /management
   endpoint:
     health:
@@ -130,9 +73,6 @@ management:
       roles: 'ADMIN'
       probes:
         enabled: true
-  info:
-    git:
-      mode: full
   health:
     mail:
       enabled: false
@@ -153,5 +93,5 @@ springdoc:
   show-actuator: true
   group-configs:
     - group: 'svs-api'
-      display-name: 'SVS Maritime API'
+      display-name: 'SVS Maritime API - Salane Vision S.a.r.l'
       paths-to-match: '/api/v1/**'

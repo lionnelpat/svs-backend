@@ -57,7 +57,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PostMapping
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> createInvoice(
             @Valid @RequestBody InvoiceDTO.CreateRequest request) {
 
@@ -86,7 +86,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> updateInvoice(
             @Parameter(description = "ID de la facture") @PathVariable Long id,
             @Valid @RequestBody InvoiceDTO.UpdateRequest request) {
@@ -113,7 +113,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> getInvoiceById(
             @Parameter(description = "ID de la facture") @PathVariable Long id) {
 
@@ -139,7 +139,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @GetMapping("/numero/{numero}")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> getInvoiceByNumero(
             @Parameter(description = "Numéro de la facture") @PathVariable String numero) {
 
@@ -171,7 +171,7 @@ public class InvoiceController {
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès",
             content = @Content(schema = @Schema(implementation = InvoiceDTO.PageResponse.class)))
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.PageResponse>> getAllInvoices(
             @Parameter(description = "Terme de recherche (numéro, compagnie, navire)") @RequestParam(required = false) String search,
             @Parameter(description = "Filtre par compagnie") @RequestParam(required = false) Long compagnieId,
@@ -220,7 +220,7 @@ public class InvoiceController {
     )
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
     @GetMapping("/recent")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<List<InvoiceDTO.Response>>> getRecentInvoices(
             @Parameter(description = "Nombre de factures") @RequestParam(defaultValue = "10") Integer limit) {
 
@@ -261,7 +261,7 @@ public class InvoiceController {
     )
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
     @GetMapping("/overdue")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<List<InvoiceDTO.Response>>> getOverdueInvoices() {
 
         log.debug("Recherche de toutes les factures échues");
@@ -290,7 +290,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> changeInvoiceStatus(
             @Parameter(description = "ID de la facture") @PathVariable Long id,
             @Parameter(description = "Nouveau statut") @RequestParam InvoiceStatus statut,
@@ -320,7 +320,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/emit")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> emitInvoice(
             @Parameter(description = "ID de la facture") @PathVariable Long id,
             @Parameter(description = "Commentaire d'émission") @RequestParam(required = false) String commentaire) {
@@ -349,7 +349,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/mark-paid")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> markInvoiceAsPaid(
             @Parameter(description = "ID de la facture") @PathVariable Long id,
             @Parameter(description = "Commentaire de paiement") @RequestParam(required = false) String commentaire) {
@@ -378,7 +378,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/cancel")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> cancelInvoice(
             @Parameter(description = "ID de la facture") @PathVariable Long id,
             @Parameter(description = "Commentaire d'annulation (obligatoire)") @RequestParam String commentaire) {
@@ -405,7 +405,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/mark-draft")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> markInvoiceAsDraft(
             @Parameter(description = "ID de la facture") @PathVariable Long id,
             @Parameter(description = "Commentaire") @RequestParam(required = false) String commentaire) {
@@ -427,7 +427,7 @@ public class InvoiceController {
     )
     @ApiResponse(responseCode = "200", description = "Mise à jour effectuée")
     @PatchMapping("/update-overdue")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<Integer>> updateOverdueInvoices() {
 
         log.info("Mise à jour des factures en retard");
@@ -452,7 +452,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/toggle-active")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.Response>> toggleActiveStatus(
             @Parameter(description = "ID de la facture") @PathVariable Long id,
             @Parameter(description = "Nouveau statut actif") @RequestParam Boolean active) {
@@ -480,7 +480,7 @@ public class InvoiceController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<Void>> deleteInvoice(
             @Parameter(description = "ID de la facture") @PathVariable Long id) {
 
@@ -501,7 +501,7 @@ public class InvoiceController {
             description = "Exporte les factures au format PDF avec filtres"
     )
     @PostMapping("/export/pdf")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<byte[]> exportToPdf(@Valid @RequestBody InvoiceDTO.SearchFilter filter) {
 
         log.info("Export PDF des factures");
@@ -524,7 +524,7 @@ public class InvoiceController {
             description = "Exporte les factures au format Excel avec filtres"
     )
     @PostMapping("/export/excel")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<byte[]> exportToExcel(@Valid @RequestBody InvoiceDTO.SearchFilter filter) {
 
         log.info("Export Excel des factures");
@@ -550,7 +550,7 @@ public class InvoiceController {
     )
     @ApiResponse(responseCode = "200", description = "Statistiques récupérées")
     @GetMapping("/stats")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.StatisticsResponse>> getInvoiceStats() {
 
         log.debug("Récupération des statistiques des factures");
@@ -570,7 +570,7 @@ public class InvoiceController {
     )
     @ApiResponse(responseCode = "200", description = "Statistiques récupérées")
     @GetMapping("/stats/period")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<InvoiceDTO.StatisticsResponse>> getInvoiceStatsForPeriod(
             @Parameter(description = "Date de début") @RequestParam LocalDate startDate,
             @Parameter(description = "Date de fin") @RequestParam LocalDate endDate) {
@@ -592,7 +592,7 @@ public class InvoiceController {
     )
     @ApiResponse(responseCode = "200", description = "Top compagnies récupérées")
     @GetMapping("/stats/top-companies")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<List<InvoiceDTO.CompanyInvoiceStatsResponse>>> getTopCompanies(
             @Parameter(description = "Nombre de compagnies") @RequestParam(defaultValue = "10") Integer limit,
             @Parameter(description = "Date de début") @RequestParam(required = false) LocalDate startDate) {
@@ -615,7 +615,7 @@ public class InvoiceController {
     )
     @ApiResponse(responseCode = "200", description = "Évolution récupérée")
     @GetMapping("/stats/monthly-evolution")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<List<InvoiceDTO.MonthlyInvoiceStatsResponse>>> getMonthlyEvolution(
             @Parameter(description = "Nombre de mois") @RequestParam(defaultValue = "12") Integer months) {
 

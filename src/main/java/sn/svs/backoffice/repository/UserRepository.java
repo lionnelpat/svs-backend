@@ -23,6 +23,32 @@ import java.util.Set;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+
+    /**
+     * Trouve un utilisateur avec ses rôles chargés par username
+     */
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE LOWER(u.username) = LOWER(:username)")
+    Optional<User> findByUsernameWithRoles(@Param("username") String username);
+
+    /**
+     * Trouve un utilisateur avec ses rôles chargés par email
+     */
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE LOWER(u.email) = LOWER(:email)")
+    Optional<User> findByEmailWithRoles(@Param("email") String email);
+
+    /**
+     * Trouve un utilisateur avec ses rôles chargés par username ou email
+     */
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE LOWER(u.username) = LOWER(:identifier) OR LOWER(u.email) = LOWER(:identifier)")
+    Optional<User> findByUsernameOrEmailWithRoles(@Param("identifier") String identifier);
+
+    /**
+     * Trouve un utilisateur avec ses rôles chargés par ID
+     */
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id")
+    Optional<User> findByIdWithRoles(@Param("id") Long id);
+
+
     // ========== RECHERCHE PAR IDENTIFIANTS ==========
 
     /**
@@ -105,13 +131,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Trouve tous les utilisateurs administrateurs actifs
      */
-    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_ADMIN' AND u.isActive = true")
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ADMIN' AND u.isActive = true")
     List<User> findActiveAdministrators();
 
     /**
      * Trouve tous les utilisateurs managers actifs
      */
-    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_MANAGER' AND u.isActive = true")
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'MANAGER' AND u.isActive = true")
     List<User> findActiveManagers();
 
     // ========== RECHERCHE PAR DATES ==========
@@ -204,6 +230,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Page<User> findByIsActiveTrue(Pageable pageable);
 
+
+    Page<User> findByIsActive(Boolean isActive, Pageable pageable);
+
     /**
      * Trouve tous les utilisateurs par rôle avec pagination
      */
@@ -277,4 +306,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Query("SELECT COUNT(u) FROM User u WHERE u.lastLogin >= :date")
     Long countActiveUsersSince(@Param("date") LocalDateTime date);
+
+    /**
+     * Sélectionne tous les utilisateurs avec leurs rôles pour la pagination
+     */
+    @Query(value = "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles",
+            countQuery = "SELECT COUNT(DISTINCT u) FROM User u")
+    Page<User> findAllWithRoles(Pageable pageable);
 }

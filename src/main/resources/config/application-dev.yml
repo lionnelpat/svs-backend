@@ -1,21 +1,43 @@
-# Configuration pour le profil de d�veloppement
 spring:
   config:
     activate:
       on-profile: dev
 
-  # Configuration spécifique au développement
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
+  # Configuration base de données développement
   datasource:
     url: jdbc:postgresql://localhost:5432/svs_db
     username: postgres
     password: postgres
+    driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 30
+      pool-name: Hikari
+      maximum-pool-size: 20
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
+  # Configuration JPA développement
+  jpa:
+    hibernate:
+      ddl-auto: update # Création automatique des tables en dev
+    show-sql: false # Désactivé pour éviter trop de logs en dev
+
+  # Configuration Mail développement (optionnel)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:dev@salanevision.sn}
+    password: ${MAIL_PASSWORD:dev-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: false
+
+  # DevTools pour le développement
   devtools:
     restart:
       enabled: true
@@ -23,23 +45,176 @@ spring:
     livereload:
       enabled: true
 
-  # Configuration CORS pour Angular
-  web:
-    cors:
-      allowed-origins: "*"
-      allowed-methods: "*"
-      allowed-headers: "*"
-      allow-credentials: true
-      max-age: 3600
+# Configuration serveur développement
+server:
+  port: 8080
+  address: 0.0.0.0
 
+# Configuration JWT développement
+app:
+  jwt:
+    secret: "U1ZTLURha2FyLURldmVsb3BtZW50LUtleS1Gb3ItSldULVRva2VuLUdlbmVyYXRpb24tMjAyNQ=="
+    access-token-expiration-ms: 3600000  # 1 heure en dev (plus long pour debug)
+    refresh-token-expiration-ms: 86400000  # 24 heures
+
+  frontend:
+    base-url: "http://localhost:4200"
+
+  email:
+    from: "dev-noreply@salanevision.sn"
+
+# CORS spécifique développement - PERMISSIF
+cors:
+  allowed-origins:
+    - "http://localhost:4200"  # Angular dev
+    - "http://localhost:3000"  # React dev (si besoin)
+    - "http://127.0.0.1:4200"  # Alternative localhost
+  allowed-methods: "*"
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 3600
+
+# Configuration des logs développement
 logging:
   level:
+    ROOT: INFO
     sn.svs.backoffice: DEBUG
+    org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/svs-backend-dev.log
 
+# OpenAPI/Swagger activé en développement
+springdoc:
+  swagger-ui:
+    enabled: true
+    try-it-out-enabled: true
+  api-docs:
+    enabled: true
 
-security:
-  enabled: false
+---
 
+# ========== application-staging.yml (Environnement de pré-production) ==========
+spring:
+  config:
+    activate:
+      on-profile: staging
+
+  # Configuration base de données staging
+  datasource:
+    url: jdbc:postgresql://localhost:5432/svs_staging_db
+    username: ${DB_USERNAME:staging_user}
+    password: ${DB_PASSWORD:staging_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: HikariStaging
+      maximum-pool-size: 15
+      minimum-idle: 3
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # Configuration JPA staging
+  jpa:
+    hibernate:
+      ddl-auto: validate # Plus sécurisé en staging
+    show-sql: false
+
+  # Configuration Mail staging
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: true
+
+  # DevTools désactivé en staging
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+
+# Configuration serveur staging
+server:
+  port: 8080
+  address: 0.0.0.0
+
+# Configuration JWT staging
+app:
+  jwt:
+    secret: ${JWT_SECRET:U1ZTLVNhbGFuZS1WaXNpb24tU3RhZ2luZy1TZWNyZXQtS2V5LUZvci1KV1QtVG9rZW4tR2VuZXJhdGlvbi0yMDI1}
+    access-token-expiration-ms: 900000  # 15 minutes en staging
+    refresh-token-expiration-ms: 86400000  # 24 heures
+
+  frontend:
+    base-url: ${FRONTEND_URL:https://staging.salanevision.sn}
+
+  email:
+    from: ${EMAIL_FROM:staging-noreply@salanevision.sn}
+
+# CORS restrictif en staging - URL spécifique uniquement
 cors:
-  allowed-origins: "*"
+  allowed-origins:
+    - ${FRONTEND_URL:https://staging.salanevision.sn}
+  allowed-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allowed-headers:
+    - "Authorization"
+    - "Content-Type"
+    - "X-Requested-With"
+    - "Accept"
+    - "Origin"
+  exposed-headers:
+    - "Authorization"
+    - "X-Token-Expires-In"
+    - "X-Total-Count"
+  allow-credentials: true
+  max-age: 1800
+
+# Configuration des logs staging
+logging:
+  level:
+    ROOT: WARN
+    sn.svs.backoffice: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/svs-backend-staging.log
+
+# Swagger limité en staging
+springdoc:
+  swagger-ui:
+    enabled: true
+    try-it-out-enabled: false # Lecture seule en staging
+  api-docs:
+    enabled: true
+
+# Actuator plus restrictif en staging
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

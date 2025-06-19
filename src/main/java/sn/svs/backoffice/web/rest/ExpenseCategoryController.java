@@ -47,7 +47,7 @@ public class ExpenseCategoryController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseCategoryDTO.Response>> createCategory(
             @Valid @RequestBody ExpenseCategoryDTO.CreateRequest request) {
 
@@ -76,7 +76,7 @@ public class ExpenseCategoryController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseCategoryDTO.Response>> updateCategory(
             @Parameter(description = "ID de la catégorie") @PathVariable Long id,
             @Valid @RequestBody ExpenseCategoryDTO.UpdateRequest request) {
@@ -103,7 +103,7 @@ public class ExpenseCategoryController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseCategoryDTO.Response>> getCategoryById(
             @Parameter(description = "ID de la catégorie") @PathVariable Long id) {
 
@@ -129,7 +129,7 @@ public class ExpenseCategoryController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @GetMapping("/code/{code}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseCategoryDTO.Response>> getCategoryByCode(
             @Parameter(description = "Code de la catégorie") @PathVariable String code) {
 
@@ -151,7 +151,7 @@ public class ExpenseCategoryController {
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès",
             content = @Content(schema = @Schema(implementation = ExpenseCategoryDTO.PageResponse.class)))
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseCategoryDTO.PageResponse>> getAllCategories(
             @Parameter(description = "Terme de recherche") @RequestParam(required = false) String search,
             @Parameter(description = "Filtre par statut actif") @RequestParam(required = false) Boolean active,
@@ -186,7 +186,7 @@ public class ExpenseCategoryController {
     )
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
     @GetMapping("/active")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<List<ExpenseCategoryDTO.Summary>>> getActiveCategories() {
 
         log.debug("Recherche de toutes les catégories actives");
@@ -211,7 +211,7 @@ public class ExpenseCategoryController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/toggle-active")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseCategoryDTO.Response>> toggleActiveStatus(
             @Parameter(description = "ID de la catégorie") @PathVariable Long id) {
 
@@ -236,7 +236,7 @@ public class ExpenseCategoryController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<Void>> deleteCategory(
             @Parameter(description = "ID de la catégorie") @PathVariable Long id) {
 
@@ -260,7 +260,7 @@ public class ExpenseCategoryController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @DeleteMapping("/{id}/hard")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<Void>> hardDeleteCategory(
             @Parameter(description = "ID de la catégorie") @PathVariable Long id) {
 
@@ -280,7 +280,7 @@ public class ExpenseCategoryController {
     )
     @ApiResponse(responseCode = "200", description = "Vérification effectuée")
     @GetMapping("/exists/code/{code}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<Boolean>> checkCodeExists(
             @Parameter(description = "Code à vérifier") @PathVariable String code) {
 
@@ -301,7 +301,7 @@ public class ExpenseCategoryController {
     )
     @ApiResponse(responseCode = "200", description = "Vérification effectuée")
     @GetMapping("/exists/nom/{nom}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<Boolean>> checkNomExists(
             @Parameter(description = "Nom à vérifier") @PathVariable String nom) {
 
@@ -322,7 +322,7 @@ public class ExpenseCategoryController {
     )
     @ApiResponse(responseCode = "200", description = "Statistiques récupérées")
     @GetMapping("/stats")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseCategoryService.CategoryStatsDTO>> getCategoryStats() {
 
         log.debug("Récupération des statistiques des catégories");

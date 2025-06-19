@@ -26,6 +26,9 @@ import sn.svs.backoffice.security.jwt.JwtAuthenticationFilter;
 
 import java.util.Arrays;
 
+import static sn.svs.backoffice.security.constants.SecurityConstants.ROLE_ADMIN;
+import static sn.svs.backoffice.security.constants.SecurityConstants.ROLE_MANAGER;
+
 /**
  * Configuration de sécurité Spring Security avec JWT
  * Définit les règles d'authentification et d'autorisation pour l'application
@@ -74,7 +77,6 @@ public class SecurityConfig {
                         // ========== ENDPOINTS PUBLICS ==========
                         .requestMatchers(
                                 "/api/v1/auth/login",
-                                "/api/v1/auth/register",
                                 "/api/v1/auth/refresh-token",
                                 "/api/v1/auth/forgot-password",
                                 "/api/v1/auth/reset-password",
@@ -106,36 +108,38 @@ public class SecurityConfig {
 
                         // ========== GESTION DES UTILISATEURS ==========
                         // Seuls les ADMIN peuvent créer/supprimer des utilisateurs
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
-
-                        // ADMIN et MANAGER peuvent lister et voir les utilisateurs
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // ADMIN et MANAGER peuvent modifier les utilisateurs
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // ========== GESTION DES RÔLES ==========
-                        // Seuls les ADMIN peuvent gérer les rôles
-                        .requestMatchers("/api/roles/**").hasRole("ADMIN")
+//                        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
+//                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
+//
+//                        // ADMIN et MANAGER peuvent lister et voir les utilisateurs
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
+//
+//                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+//
+//                        // ADMIN et MANAGER peuvent modifier les utilisateurs
+//                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
+//
+//                        // ========== GESTION DES RÔLES ==========
+//                        // Seuls les ADMIN peuvent gérer les rôles
+//                        .requestMatchers("/api/roles/**").hasRole("ADMIN")
 
                         // ========== FACTURES MARITIMES (MÉTIER) ==========
                         // Tous les utilisateurs authentifiés peuvent voir les factures
-                        .requestMatchers(HttpMethod.GET, "/api/v1/invoices/**").hasAnyRole("ADMIN", "MANAGER", "USER")
-
-                        // ADMIN et MANAGER peuvent créer/modifier des factures
-                        .requestMatchers(
-                                HttpMethod.POST, "/api/v1/invoices/**"
-                        ).hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(
-                                HttpMethod.PUT, "/api/v1/invoices/**"
-                        ).hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(
-                                HttpMethod.PATCH, "/api/v1/invoices/**"
-                        ).hasAnyRole("ADMIN", "MANAGER")
-
-                        // Seuls les ADMIN peuvent supprimer des factures
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/invoices/**").hasRole("ADMIN")
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/invoices/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+//
+//                        // ADMIN et MANAGER peuvent créer/modifier des factures
+//                        .requestMatchers(
+//                                HttpMethod.POST, "/api/v1/invoices/**"
+//                        ).hasAnyRole("ADMIN", "MANAGER")
+//                        .requestMatchers(
+//                                HttpMethod.PUT, "/api/v1/invoices/**"
+//                        ).hasAnyRole("ADMIN", "MANAGER")
+//                        .requestMatchers(
+//                                HttpMethod.PATCH, "/api/v1/invoices/**"
+//                        ).hasAnyRole("ADMIN", "MANAGER")
+//
+//                        // Seuls les ADMIN peuvent supprimer des factures
+//                        .requestMatchers(HttpMethod.DELETE, "/api/v1/invoices/**").hasRole("ADMIN")
 
                         // ========== PROFIL UTILISATEUR ==========
                         // Chaque utilisateur peut gérer son propre profil

@@ -1,4 +1,5 @@
-// ========== ROLE CONTROLLER ==========
+
+// ========== ROLE CONTROLLER CORRIGÉ ==========
 package sn.svs.backoffice.web.rest;
 
 import jakarta.validation.Valid;
@@ -17,6 +18,8 @@ import sn.svs.backoffice.service.RoleService;
 import java.util.List;
 import java.util.Map;
 
+import static sn.svs.backoffice.security.constants.SecurityConstants.HAS_ROLE_ADMIN;
+
 /**
  * Contrôleur CRUD pour la gestion des rôles
  * SVS - Dakar, Sénégal
@@ -26,7 +29,7 @@ import java.util.Map;
 @CrossOrigin(origins = {"http://localhost:4200", "https://svs-backoffice.com"})
 @Slf4j
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+//@PreAuthorize(HAS_ROLE_ADMIN)
 public class RoleController {
 
     private final RoleService roleService;
@@ -116,7 +119,7 @@ public class RoleController {
      * POST /api/v1/admin/roles
      */
     @PostMapping
-    public ResponseEntity<?> createRole(@Valid @RequestBody RoleDTO.CreateRequest request) {
+    public ResponseEntity<RoleDTO.Response> createRole(@Valid @RequestBody RoleDTO.CreateRequest request) {
         log.info("Création d'un nouveau rôle: {}", request.getName());
 
         try {
@@ -124,7 +127,8 @@ public class RoleController {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdRole);
         } catch (IllegalArgumentException e) {
             log.warn("Erreur lors de la création du rôle: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            // Ici on peut retourner une réponse d'erreur ou lever une exception
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -133,8 +137,8 @@ public class RoleController {
      * PUT /api/v1/admin/roles/{id}
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRole(@PathVariable Long id,
-                                        @Valid @RequestBody RoleDTO.UpdateRequest request) {
+    public ResponseEntity<RoleDTO.Response> updateRole(@PathVariable Long id,
+                                                       @Valid @RequestBody RoleDTO.UpdateRequest request) {
         log.info("Mise à jour du rôle ID: {}", id);
 
         try {
@@ -142,7 +146,7 @@ public class RoleController {
             return ResponseEntity.ok(updatedRole);
         } catch (RuntimeException e) {
             log.warn("Erreur lors de la mise à jour du rôle {}: {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -151,7 +155,7 @@ public class RoleController {
      * PATCH /api/v1/admin/roles/{id}/activate
      */
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<?> activateRole(@PathVariable Long id) {
+    public ResponseEntity<RoleDTO.Response> activateRole(@PathVariable Long id) {
         log.info("Activation du rôle ID: {}", id);
 
         try {
@@ -159,7 +163,7 @@ public class RoleController {
             return ResponseEntity.ok(activatedRole);
         } catch (RuntimeException e) {
             log.warn("Erreur lors de l'activation du rôle {}: {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -168,7 +172,7 @@ public class RoleController {
      * PATCH /api/v1/admin/roles/{id}/deactivate
      */
     @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<?> deactivateRole(@PathVariable Long id) {
+    public ResponseEntity<RoleDTO.Response> deactivateRole(@PathVariable Long id) {
         log.info("Désactivation du rôle ID: {}", id);
 
         try {
@@ -176,7 +180,7 @@ public class RoleController {
             return ResponseEntity.ok(deactivatedRole);
         } catch (RuntimeException e) {
             log.warn("Erreur lors de la désactivation du rôle {}: {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -185,19 +189,21 @@ public class RoleController {
      * DELETE /api/v1/admin/roles/{id}
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteRole(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteRole(@PathVariable Long id) {
         log.info("Suppression du rôle ID: {}", id);
 
         try {
             if (!roleService.canDelete(id)) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Ce rôle ne peut pas être supprimé"));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Ce rôle ne peut pas être supprimé"));
             }
 
             roleService.delete(id);
             return ResponseEntity.ok(Map.of("message", "Rôle supprimé avec succès"));
         } catch (RuntimeException e) {
             log.warn("Erreur lors de la suppression du rôle {}: {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 

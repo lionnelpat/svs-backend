@@ -4,22 +4,25 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import sn.svs.backoffice.dto.AuthDTO;
+import sn.svs.backoffice.dto.ErrorDTO;
+import sn.svs.backoffice.exceptions.AuthExceptionHandler;
 import sn.svs.backoffice.security.jwt.JwtUtils;
 import sn.svs.backoffice.service.AuthService;
 import sn.svs.backoffice.service.UserDetailsService;
 import sn.svs.backoffice.domain.User;
+import sn.svs.backoffice.service.UserReloadService;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,30 +51,34 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final AuthService authService;
     private final UserDetailsService userDetailsService;
+    private final UserReloadService userReloadService;
 
-    /**
-     * Connexion utilisateur
-     * POST /api/v1/auth/login
-     */
+    @Autowired
+    private AuthExceptionHandler authExceptionHandler;
+
+
     @PostMapping("/login")
-    public ResponseEntity<AuthDTO.LoginResponse> login(@Valid @RequestBody AuthDTO.LoginRequest loginRequest,
-                                                       HttpServletRequest request) {
+    public ResponseEntity<Object> login(@Valid @RequestBody AuthDTO.LoginRequest loginRequest,
+                                        HttpServletRequest request) {
         try {
             log.info("Tentative de connexion pour l'utilisateur: {}", loginRequest.getUsername());
 
-            // Extraire l'IP du client pour logs de sécurité
             String clientIp = getClientIpAddress(request);
 
             // Authentifier l'utilisateur
-            Authentication authentication = authenticationManager.authenticate(
+            authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()
                     )
             );
 
-            // Récupérer l'utilisateur authentifié
-            User user = (User) authentication.getPrincipal();
+            // Recharger l'utilisateur avec ses rôles
+            User user = userReloadService.reloadUserWithRoles(loginRequest.getUsername());
+
+            log.info("Utilisateur rechargé avec {} rôle(s): {}",
+                    user.getRoles().size(),
+                    user.getRoles().stream().map(r -> r.getName().name()).toList());
 
             // Générer les tokens JWT
             String accessToken = jwtUtils.generateAccessToken(user);
@@ -103,56 +110,90 @@ public class AuthController {
                             .build())
                     .build();
 
-            log.info("Connexion réussie pour l'utilisateur: {} depuis l'IP: {}",
-                    user.getUsername(), clientIp);
+            log.info("Connexion réussie pour l'utilisateur: {} depuis l'IP: {} avec rôles: {}",
+                    user.getUsername(), clientIp, response.getUser().getRoles());
 
             return ResponseEntity.ok(response);
 
-        } catch (BadCredentialsException e) {
-            log.warn("Tentative de connexion échouée - Identifiants incorrects pour: {}",
-                    loginRequest.getUsername());
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(AuthDTO.LoginResponse.builder()
-                            .success(false)
-                            .message("Identifiants incorrects")
-                            .build());
-
-        } catch (DisabledException e) {
-            log.warn("Tentative de connexion échouée - Compte désactivé pour: {}",
-                    loginRequest.getUsername());
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(AuthDTO.LoginResponse.builder()
-                            .success(false)
-                            .message("Votre compte est désactivé. Contactez un administrateur.")
-                            .build());
-
         } catch (AuthenticationException e) {
-            log.error("Erreur d'authentification pour l'utilisateur: {} - {}",
-                    loginRequest.getUsername(), e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(AuthDTO.LoginResponse.builder()
-                            .success(false)
-                            .message("Erreur d'authentification: " + e.getMessage())
-                            .build());
-
+            return authExceptionHandler.handleAuthenticationException(e, request, loginRequest.getUsername());
         } catch (Exception e) {
-            log.error("Erreur inattendue lors de la connexion pour: {} - {}",
-                    loginRequest.getUsername(), e.getMessage());
+            log.error("Erreur système lors de la connexion pour {}: {}", loginRequest.getUsername(), e.getMessage());
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(AuthDTO.LoginResponse.builder()
-                            .success(false)
-                            .message("Erreur système. Veuillez réessayer.")
-                            .build());
+            ErrorDTO.Response errorResponse = ErrorDTO.Response.builder()
+                    .path(request.getRequestURI())
+                    .code("INTERNAL_SERVER_ERROR")
+                    .method(request.getMethod())
+                    .success(false)
+                    .suggestions(ErrorDTO.Suggestion.builder()
+                            .endpoint("/api/v1/auth/login")
+                            .action("retry")
+                            .message("Réessayez dans quelques instants. Si le problème persiste, contactez le support.")
+                            .build())
+                    .error(true)
+                    .message("Erreur système temporaire. Veuillez réessayer.")
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
+
     /**
-     * Rafraîchissement du token d'accès
-     * POST /api/v1/auth/refresh-token
+     * Informations de l'utilisateur connecté - CORRIGÉE
+     */
+    @GetMapping("/user-info")
+    public ResponseEntity<AuthDTO.UserInfoResponse> getUserInfo() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication != null && authentication.getPrincipal() instanceof User) {
+                User userFromAuth = (User) authentication.getPrincipal();
+
+                log.debug("User depuis authentication: {} (rôles: {})",
+                        userFromAuth.getUsername(),
+                        userFromAuth.getRoles() != null ? userFromAuth.getRoles().size() : "null");
+
+                User user = userReloadService.reloadUserWithRoles(userFromAuth);
+
+                log.info("User rechargé: {} avec {} rôle(s): {}",
+                        user.getUsername(),
+                        user.getRoles().size(),
+                        user.getRoles().stream().map(r -> r.getName().name()).toList());
+
+                AuthDTO.UserInfoResponse userInfo = AuthDTO.UserInfoResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .phone(user.getPhone())
+                        .roles(user.getRoles().stream()
+                                .map(role -> role.getName().name())
+                                .toList())
+                        .isActive(user.getIsActive())
+                        .isEmailVerified(user.getIsEmailVerified())
+                        .lastLogin(user.getLastLogin())
+                        .createdAt(user.getCreatedAt())
+                        .build();
+
+                return ResponseEntity.ok(userInfo);
+            }
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération des informations utilisateur: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ========== AUTRES MÉTHODES INCHANGÉES ==========
+
+    /**
+     * Rafraîchissement du token d'accès - CORRIGÉ
      */
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthDTO.RefreshResponse> refreshToken(@Valid @RequestBody AuthDTO.RefreshRequest refreshRequest) {
@@ -161,9 +202,7 @@ public class AuthController {
 
             String refreshToken = refreshRequest.getRefreshToken();
 
-            // Valider le refresh token
             if (!jwtUtils.validateToken(refreshToken)) {
-                log.warn("Tentative de rafraîchissement avec token invalide");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(AuthDTO.RefreshResponse.builder()
                                 .success(false)
@@ -171,9 +210,7 @@ public class AuthController {
                                 .build());
             }
 
-            // Vérifier que c'est bien un refresh token
             if (!jwtUtils.isRefreshToken(refreshToken)) {
-                log.warn("Tentative de rafraîchissement avec un token d'accès");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(AuthDTO.RefreshResponse.builder()
                                 .success(false)
@@ -181,11 +218,11 @@ public class AuthController {
                                 .build());
             }
 
-            // Extraire l'utilisateur du token
             String username = jwtUtils.getUsernameFromToken(refreshToken);
-            User user = (User) userDetailsService.loadUserByUsername(username);
 
-            // Générer un nouveau token d'accès
+            // CORRECTION: Recharger l'utilisateur avec ses rôles
+            User user = userReloadService.reloadUserWithRoles(username);
+
             String newAccessToken = jwtUtils.generateAccessToken(user);
             String newRefreshToken = jwtUtils.generateRefreshToken(user);
 
@@ -248,45 +285,6 @@ public class AuthController {
                             .message("Erreur lors de la validation")
                             .build()
             );
-        }
-    }
-
-    /**
-     * Informations de l'utilisateur connecté
-     * GET /api/v1/auth/user-info
-     */
-    @GetMapping("/user-info")
-    public ResponseEntity<AuthDTO.UserInfoResponse> getUserInfo() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (authentication != null && authentication.getPrincipal() instanceof User) {
-                User user = (User) authentication.getPrincipal();
-
-                AuthDTO.UserInfoResponse userInfo = AuthDTO.UserInfoResponse.builder()
-                        .id(user.getId())
-                        .username(user.getUsername())
-                        .email(user.getEmail())
-                        .firstName(user.getFirstName())
-                        .lastName(user.getLastName())
-                        .phone(user.getPhone())
-                        .roles(user.getRoles().stream()
-                                .map(role -> role.getName().name())
-                                .toList())
-                        .isActive(user.getIsActive())
-                        .isEmailVerified(user.getIsEmailVerified())
-                        .lastLogin(user.getLastLogin())
-                        .createdAt(user.getCreatedAt())
-                        .build();
-
-                return ResponseEntity.ok(userInfo);
-            }
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        } catch (Exception e) {
-            log.error("Erreur lors de la récupération des informations utilisateur: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

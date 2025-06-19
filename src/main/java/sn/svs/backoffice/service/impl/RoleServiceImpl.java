@@ -240,9 +240,9 @@ public class RoleServiceImpl implements RoleService {
      * Vérifie si un rôle est un rôle système
      */
     private boolean isSystemRole(Role role) {
-        return role.getName() == Role.RoleName.ROLE_ADMIN ||
-                role.getName() == Role.RoleName.ROLE_MANAGER ||
-                role.getName() == Role.RoleName.ROLE_USER;
+        return role.getName() == Role.RoleName.ADMIN ||
+                role.getName() == Role.RoleName.MANAGER ||
+                role.getName() == Role.RoleName.USER;
     }
 }
 

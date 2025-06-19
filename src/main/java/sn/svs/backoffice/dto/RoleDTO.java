@@ -60,9 +60,9 @@ public class RoleDTO {
         public String getDisplayName() {
             if (name != null) {
                 switch (name) {
-                    case ROLE_ADMIN: return "Administrateur";
-                    case ROLE_MANAGER: return "Gestionnaire";
-                    case ROLE_USER: return "Utilisateur";
+                    case ADMIN: return "Administrateur";
+                    case MANAGER: return "Gestionnaire";
+                    case USER: return "Utilisateur";
                     default: return name.name();
                 }
             }
@@ -84,13 +84,21 @@ public class RoleDTO {
         public String getDisplayName() {
             if (name != null) {
                 switch (name) {
-                    case ROLE_ADMIN: return "Administrateur";
-                    case ROLE_MANAGER: return "Gestionnaire";
-                    case ROLE_USER: return "Utilisateur";
+                    case ADMIN: return "Administrateur";
+                    case MANAGER: return "Gestionnaire";
+                    case USER: return "Utilisateur";
                     default: return name.name();
                 }
             }
             return "Inconnu";
+        }
+
+        public static Summary fromEntity(Role role) {
+            return Summary.builder()
+                    .id(role.getId())
+                    .name(role.getName()) // Si tu veux juste ADMIN / USER etc.
+                    .description(role.getDescription())
+                    .build();
         }
     }
 

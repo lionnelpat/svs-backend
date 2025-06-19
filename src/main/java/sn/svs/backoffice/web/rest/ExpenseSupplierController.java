@@ -48,7 +48,7 @@ public class ExpenseSupplierController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseSupplierDTO.Response>> createSupplier(
             @Valid @RequestBody ExpenseSupplierDTO.CreateRequest request) {
 
@@ -77,7 +77,7 @@ public class ExpenseSupplierController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseSupplierDTO.Response>> updateSupplier(
             @Parameter(description = "ID du fournisseur") @PathVariable Long id,
             @Valid @RequestBody ExpenseSupplierDTO.UpdateRequest request) {
@@ -104,7 +104,7 @@ public class ExpenseSupplierController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseSupplierDTO.Response>> getSupplierById(
             @Parameter(description = "ID du fournisseur") @PathVariable Long id) {
 
@@ -126,7 +126,7 @@ public class ExpenseSupplierController {
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès",
             content = @Content(schema = @Schema(implementation = ExpenseSupplierDTO.PageResponse.class)))
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<ExpenseSupplierDTO.PageResponse>> getAllSuppliers(
             @Parameter(description = "Terme de recherche") @RequestParam(required = false) String search,
             @Parameter(description = "Filtre par statut actif") @RequestParam(required = false) Boolean active,
@@ -161,7 +161,7 @@ public class ExpenseSupplierController {
     )
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
     @GetMapping("/active")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<List<ExpenseSupplierDTO.Summary>>> getActiveSuppliers() {
 
         log.debug("Recherche de tous les fournisseurs actifs");
@@ -187,7 +187,7 @@ public class ExpenseSupplierController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<Void>> deleteSupplier(
             @Parameter(description = "ID du fournisseur") @PathVariable Long id) {
 
@@ -213,7 +213,7 @@ public class ExpenseSupplierController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @DeleteMapping("/{id}/hard")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<Void>> hardDeleteSupplier(
             @Parameter(description = "ID du fournisseur") @PathVariable Long id) {
 
@@ -238,7 +238,7 @@ public class ExpenseSupplierController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseSupplierDTO.Response>> restoreSupplier(
             @Parameter(description = "ID du fournisseur") @PathVariable Long id) {
 
@@ -260,7 +260,7 @@ public class ExpenseSupplierController {
     )
     @ApiResponse(responseCode = "200", description = "Vérification effectuée")
     @GetMapping("/exists")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ApiResponseDTO<Boolean>> checkSupplierExists(
             @Parameter(description = "NINEA du fournisseur") @RequestParam(required = false) String ninea){
 

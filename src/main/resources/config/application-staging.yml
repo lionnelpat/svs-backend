@@ -1,28 +1,119 @@
-# Configuration pour les tests
 spring:
   config:
     activate:
       on-profile: staging
 
+  # Configuration base de données staging
   datasource:
-    url: jdbc:postgresql://localhost:5432/staging_db
-    username: staging_user
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/svs_staging_db
+    username: ${DB_USERNAME:staging_user}
+    password: ${DB_PASSWORD:staging_password}
+    driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 30
+      pool-name: HikariStaging
+      maximum-pool-size: 15
+      minimum-idle: 3
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
+  # Configuration JPA staging
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate # Plus sécurisé en staging
+    show-sql: false
 
-  liquibase:
-    enabled: false
+  # Configuration Mail staging
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: true
 
-security:
-  enabled: false
+  # DevTools désactivé en staging
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
 
-cors:
-  allowed-origins: "*"
-
+# Configuration serveur staging
 server:
   port: 8080
+  address: 0.0.0.0
+
+# Configuration JWT staging
+app:
+  jwt:
+    secret: ${JWT_SECRET:U1ZTLVNhbGFuZS1WaXNpb24tU3RhZ2luZy1TZWNyZXQtS2V5LUZvci1KV1QtVG9rZW4tR2VuZXJhdGlvbi0yMDI1}
+    access-token-expiration-ms: 900000  # 15 minutes en staging
+    refresh-token-expiration-ms: 86400000  # 24 heures
+
+  frontend:
+    base-url: ${FRONTEND_URL:https://staging.salanevision.sn}
+
+  email:
+    from: ${EMAIL_FROM:staging-noreply@salanevision.sn}
+
+# CORS restrictif en staging - URL spécifique uniquement
+cors:
+  allowed-origins:
+    - ${FRONTEND_URL:https://staging.salanevision.sn}
+  allowed-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allowed-headers:
+    - "Authorization"
+    - "Content-Type"
+    - "X-Requested-With"
+    - "Accept"
+    - "Origin"
+  exposed-headers:
+    - "Authorization"
+    - "X-Token-Expires-In"
+    - "X-Total-Count"
+  allow-credentials: true
+  max-age: 1800
+
+# Configuration des logs staging
+logging:
+  level:
+    ROOT: WARN
+    sn.svs.backoffice: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/svs-backend-staging.log
+
+# Swagger limité en staging
+springdoc:
+  swagger-ui:
+    enabled: true
+    try-it-out-enabled: false # Lecture seule en staging
+  api-docs:
+    enabled: true
+
+# Actuator plus restrictif en staging
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

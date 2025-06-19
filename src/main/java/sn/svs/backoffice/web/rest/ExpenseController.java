@@ -56,7 +56,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PostMapping
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> createExpense(
             @Valid @RequestBody ExpenseDTO.CreateRequest request) {
 
@@ -85,7 +85,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> updateExpense(
             @Parameter(description = "ID de la dépense") @PathVariable Long id,
             @Valid @RequestBody ExpenseDTO.UpdateRequest request) {
@@ -112,7 +112,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> getExpenseById(
             @Parameter(description = "ID de la dépense") @PathVariable Long id) {
 
@@ -138,7 +138,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @GetMapping("/numero/{numero}")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> getExpenseByNumero(
             @Parameter(description = "Numéro de la dépense") @PathVariable String numero) {
 
@@ -161,7 +161,7 @@ public class ExpenseController {
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès",
             content = @Content(schema = @Schema(implementation = ExpenseDTO.PageResponse.class)))
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.PageResponse>> getAllExpenses(
             @Parameter(description = "Terme de recherche") @RequestParam(required = false) String search,
             @Parameter(description = "Filtre par catégorie") @RequestParam(required = false) Long categorieId,
@@ -211,7 +211,7 @@ public class ExpenseController {
     )
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
     @GetMapping("/recent")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<List<ExpenseDTO.Response>>> getRecentExpenses(
             @Parameter(description = "Nombre de dépenses") @RequestParam(defaultValue = "10") Integer limit) {
 
@@ -232,7 +232,7 @@ public class ExpenseController {
     )
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
     @GetMapping("/pending")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<List<ExpenseDTO.Response>>> getPendingExpenses() {
 
         log.debug("Recherche de toutes les dépenses en attente");
@@ -261,7 +261,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> changeExpenseStatus(
             @Parameter(description = "ID de la dépense") @PathVariable Long id,
             @Valid @RequestBody ExpenseDTO.StatusChangeRequest request) {
@@ -288,7 +288,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/approve")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> approveExpense(
             @Parameter(description = "ID de la dépense") @PathVariable Long id,
             @Parameter(description = "Commentaire d'approbation") @RequestParam(required = false) String commentaire) {
@@ -315,7 +315,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/reject")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> rejectExpense(
             @Parameter(description = "ID de la dépense") @PathVariable Long id,
             @Parameter(description = "Commentaire de rejet (obligatoire)") @RequestParam String commentaire) {
@@ -342,7 +342,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/mark-paid")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> markExpenseAsPaid(
             @Parameter(description = "ID de la dépense") @PathVariable Long id,
             @Parameter(description = "Commentaire de paiement") @RequestParam(required = false) String commentaire) {
@@ -369,7 +369,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @PatchMapping("/{id}/toggle-active")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.Response>> toggleActiveStatus(
             @Parameter(description = "ID de la dépense") @PathVariable Long id,
             @Parameter(description = "Nouveau statut actif") @RequestParam Boolean active) {
@@ -395,7 +395,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ApiResponseDTO.class)))
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<Void>> deleteExpense(
             @Parameter(description = "ID de la dépense") @PathVariable Long id) {
 
@@ -417,7 +417,7 @@ public class ExpenseController {
     )
     @ApiResponse(responseCode = "200", description = "Statistiques récupérées")
     @GetMapping("/stats")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<ExpenseDTO.StatsResponse>> getExpenseStats() {
 
         log.debug("Récupération des statistiques des dépenses");
@@ -437,7 +437,7 @@ public class ExpenseController {
     )
     @ApiResponse(responseCode = "200", description = "Données du dashboard récupérées")
     @GetMapping("/dashboard")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<DashboardData>> getDashboardData() {
 
         log.debug("Récupération des données du dashboard des dépenses");
@@ -470,7 +470,7 @@ public class ExpenseController {
             description = "Exporte les dépenses au format PDF avec filtres"
     )
     @PostMapping("/export/pdf")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<byte[]> exportToPdf(@Valid @RequestBody ExpenseDTO.SearchFilter filter) {
 
         log.info("Export PDF des dépenses");
@@ -493,7 +493,7 @@ public class ExpenseController {
             description = "Exporte les dépenses au format Excel avec filtres"
     )
     @PostMapping("/export/excel")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<byte[]> exportToExcel(@Valid @RequestBody ExpenseDTO.SearchFilter filter) {
 
         log.info("Export Excel des dépenses");
@@ -519,7 +519,7 @@ public class ExpenseController {
     )
     @ApiResponse(responseCode = "200", description = "Vérification effectuée")
     @GetMapping("/exists/numero/{numero}")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<Boolean>> checkNumeroExists(
             @Parameter(description = "Numéro à vérifier") @PathVariable String numero,
             @Parameter(description = "ID à exclure (pour mise à jour)") @RequestParam(required = false) Long excludeId) {
@@ -541,7 +541,7 @@ public class ExpenseController {
     )
     @ApiResponse(responseCode = "200", description = "Numéro généré")
     @GetMapping("/generate-numero")
-    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDTO<String>> generateNumero() {
 
         log.debug("Génération d'un nouveau numéro de dépense");

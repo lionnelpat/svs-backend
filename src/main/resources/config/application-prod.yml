@@ -4,21 +4,116 @@ spring:
     activate:
       on-profile: prod
 
+  # Configuration base de données production
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/maritime_prod}
-    username: ${DATABASE_USER:maritime_prod}
-    password: ${DATABASE_PASSWORD:changeme}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/svs_production_db}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 30
+      pool-name: HikariProduction
+      maximum-pool-size: 25
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
-maritime:
-  security:
-    jwt:
-      secret-key: ${JWT_SECRET_KEY:changeme-in-production}
+  # Configuration JPA production
+  jpa:
+    hibernate:
+      ddl-auto: none # Aucune modification automatique en production
+    show-sql: false
 
+  # Configuration Mail production
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: "*"
+    test-connection: true
+
+# Configuration serveur production
+server:
+  port: ${SERVER_PORT:8080}
+  address: 0.0.0.0
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    key-store: ${SSL_KEYSTORE_PATH:}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:}
+    key-store-type: ${SSL_KEYSTORE_TYPE:PKCS12}
+
+# Configuration JWT production - SÉCURISÉ
+app:
+  jwt:
+    secret: ${JWT_SECRET} # OBLIGATOIRE en variable d'environnement
+    access-token-expiration-ms: ${JWT_ACCESS_EXPIRATION:900000}  # 15 minutes
+    refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRATION:86400000}  # 24 heures
+
+  frontend:
+    base-url: ${FRONTEND_URL:https://app.salanevision.sn}
+
+  email:
+    from: ${EMAIL_FROM:noreply@salanevision.sn}
+
+# CORS très restrictif en production
+cors:
+  allowed-origins:
+    - ${FRONTEND_URL:https://app.salanevision.sn}
+    - ${ADMIN_URL:https://admin.salanevision.sn}
+  allowed-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allowed-headers:
+    - "Authorization"
+    - "Content-Type"
+    - "X-Requested-With"
+    - "Accept"
+    - "Origin"
+  exposed-headers:
+    - "Authorization"
+    - "X-Token-Expires-In"
+  allow-credentials: true
+  max-age: 3600
+
+# Configuration des logs production
 logging:
   level:
     ROOT: WARN
-    com.svs.maritime: INFO
+    sn.svs.backoffice: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: ERROR
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
-    name: /var/log/maritime-backend/application.log
+    name: ${LOG_FILE:/app/logs/svs-backend-production.log}
+
+# Swagger désactivé en production
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+# Actuator minimal en production
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+# Configuration SSL/HTTPS (optionnel)
