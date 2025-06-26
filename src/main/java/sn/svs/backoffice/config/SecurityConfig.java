@@ -38,28 +38,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CorsProps cors;
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    // Injection des valeurs CORS depuis application-staging.yml
-    @Value("${cors.allowed-origins}")
-    private List<String> allowedOrigins;
+    /**
+     * Configuration CORS pour permettre les appels depuis le frontend Angular
+     * Utilise maintenant les valeurs du fichier application-staging.yml
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOrigins(cors.getAllowedOrigins());
+        cfg.setAllowedMethods(cors.getAllowedMethods());
+        cfg.setAllowedHeaders(cors.getAllowedHeaders());
+        cfg.setExposedHeaders(cors.getExposedHeaders());
+        cfg.setAllowCredentials(cors.isAllowCredentials());
+        cfg.setMaxAge(cors.getMaxAge());
+        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", cfg);
+        return src;
+    }
 
-    @Value("${cors.allowed-methods}")
-    private List<String> allowedMethods;
-
-    @Value("${cors.allowed-headers}")
-    private List<String> allowedHeaders;
-
-    @Value("${cors.exposed-headers}")
-    private List<String> exposedHeaders;
-
-    @Value("${cors.allow-credentials}")
-    private boolean allowCredentials;
-
-    @Value("${cors.max-age}")
-    private long maxAge;
 
     /**
      * Configuration principale de la chaîne de filtres de sécurité
@@ -132,28 +133,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    /**
-     * Configuration CORS pour permettre les appels depuis le frontend Angular
-     * Utilise maintenant les valeurs du fichier application-staging.yml
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // Utiliser les valeurs injectées depuis application-staging.yml
-        configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(allowedMethods);
-        configuration.setAllowedHeaders(allowedHeaders);
-        configuration.setExposedHeaders(exposedHeaders);
-        configuration.setAllowCredentials(allowCredentials);
-        configuration.setMaxAge(maxAge);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
     }
 
     /**
