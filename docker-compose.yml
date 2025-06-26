@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        SPRING_PROFILE: dev
+        SPRING_PROFILE: staging
     container_name: svs-backend
     depends_on:
       - db
