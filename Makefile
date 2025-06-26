@@ -8,7 +8,7 @@ JAVA_VERSION = 17
 MAVEN_OPTS = -Dmaven.test.skip=false
 DOCKER_COMPOSE_FILE = docker-compose.yml
 DB_CONTAINER = svs-postgres
-PGADMIN_CONTAINER = svs-pgadmin
+ADMINER_CONTAINER = svs-adminer
 
 # Couleurs pour les messages
 GREEN = \033[0;32m
@@ -114,36 +114,6 @@ stop: ## ⏹️ Arrêter l'application
 	@echo "$(YELLOW)⏹️ Arrêt de l'application...$(NC)"
 	pkill -f "svs-backend" || true
 	@echo "$(GREEN)✅ Application arrêtée$(NC)"
-
-# =============================================================================
-# DOCKER ET BASE DE DONNÉES
-# =============================================================================
-
-docker-up: ## 🐳 Démarrer tous les conteneurs Docker
-	@echo "$(GREEN)🐳 Démarrage des conteneurs Docker...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) up -d
-	@echo "$(GREEN)✅ Conteneurs démarrés$(NC)"
-	@echo "$(BLUE)📊 PgAdmin: http://localhost:5050$(NC)"
-
-docker-down: ## 🐳 Arrêter tous les conteneurs Docker
-	@echo "$(YELLOW)🐳 Arrêt des conteneurs Docker...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) down
-	@echo "$(GREEN)✅ Conteneurs arrêtés$(NC)"
-
-docker-restart: ## 🐳 Redémarrer les conteneurs Docker
-	@echo "$(YELLOW)🐳 Redémarrage des conteneurs...$(NC)"
-	$(MAKE) docker-down
-	$(MAKE) docker-up
-
-docker-logs: ## 📋 Voir les logs des conteneurs
-	@echo "$(GREEN)📋 Logs des conteneurs Docker...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f
-
-docker-clean: ## 🧹 Nettoyer Docker (volumes, images, etc.)
-	@echo "$(YELLOW)🧹 Nettoyage Docker...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) down -v
-	docker system prune -f
-	@echo "$(GREEN)✅ Docker nettoyé$(NC)"
 
 # =============================================================================
 # GESTION BASE DE DONNÉES
@@ -363,6 +333,102 @@ demo: ## 🎯 Démonstration complète de l'API
 	@echo ""
 	@echo "$(GREEN)✅ Démonstration terminée$(NC)"
 	@echo "$(BLUE)📚 Consultez Swagger: http://localhost:8080/api/swagger-ui.html$(NC)"
+
+
+# =============================================================================
+# STAGING COMMANDES
+# =============================================================================
+
+
+staging-down: ## ⬇️ Arrêter l'environnement de staging
+	@echo "$(YELLOW)⬇️ Arrêt de l'environnement de staging...$(NC)"
+	docker-compose --env-file .env.staging down
+	@echo "$(GREEN)✅ Environnement de staging arrêté$(NC)"
+
+staging-up: ## ⬇️ Arrêter l'environnement de staging
+	@echo "$(YELLOW)⬇️ Arrêt de l'environnement de staging...$(NC)"
+	docker-compose --env-file .env.staging up -d --build
+	@echo "$(GREEN)✅ Environnement de staging arrêté$(NC)"
+
+staging-logs: ## 📋 Voir les logs de l'environnement de staging
+	@echo "$(GREEN)📋 Logs de l'environnement de staging...$(NC)"
+	docker-compose logs -f backend
+
+
+
+# =============================================================================
+# DOCKER DEV COMMANDES
+# =============================================================================
+
+docker-dev-up: ## 🐳 Démarrer tous les conteneurs Docker
+	@echo "$(GREEN)🐳 Démarrage des conteneurs Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.dev up -d
+	@echo "$(GREEN)✅ Conteneurs démarrés$(NC)"
+	@echo "$(BLUE)📊 Adminer: http://localhost:8082$(NC)"
+	@echo "$(BLUE)📊 API: http://localhost:8081$(NC)"
+
+docker-dev-build: ## 🐳 Arrêter tous les conteneurs Docker
+	@echo "$(YELLOW)🐳 Build des conteneurs Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.dev build
+	@echo "$(GREEN)✅ Conteneurs arrêtés$(NC)"
+
+docker-dev-down: ## 🐳 Arrêter tous les conteneurs Docker
+	@echo "$(YELLOW)🐳 Arrêt des conteneurs Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.dev down
+	@echo "$(GREEN)✅ Conteneurs arrêtés$(NC)"
+
+docker-dev-restart: ## 🐳 Redémarrer les conteneurs Docker
+	@echo "$(YELLOW)🐳 Redémarrage des conteneurs...$(NC)"
+	$(MAKE) docker-down
+	$(MAKE) docker-up
+
+docker-dev-logs: ## 📋 Voir les logs des conteneurs
+	@echo "$(GREEN)📋 Logs des conteneurs Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.dev logs -f
+
+docker-dev-clean: ## 🧹 Nettoyer Docker (volumes, images, etc.)
+	@echo "$(YELLOW)🧹 Nettoyage Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.dev down -v
+	docker system prune -f
+	@echo "$(GREEN)✅ Docker nettoyé$(NC)"
+
+
+# =============================================================================
+# DOCKER PROD COMMANDES
+# =============================================================================
+
+docker-up: ## 🐳 Démarrer tous les conteneurs Docker
+	@echo "$(GREEN)🐳 Démarrage des conteneurs Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.prod up -d
+	@echo "$(GREEN)✅ Conteneurs démarrés$(NC)"
+	@echo "$(BLUE)📊 Adminer: http://localhost:8082$(NC)"
+	@echo "$(BLUE)📊 API: http://localhost:8081$(NC)"
+
+docker-dev-build: ## 🐳 Arrêter tous les conteneurs Docker
+	@echo "$(YELLOW)🐳 Build des conteneurs Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.prod build
+	@echo "$(GREEN)✅ Conteneurs arrêtés$(NC)"
+
+docker-dev-down: ## 🐳 Arrêter tous les conteneurs Docker
+	@echo "$(YELLOW)🐳 Arrêt des conteneurs Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.prod down
+	@echo "$(GREEN)✅ Conteneurs arrêtés$(NC)"
+
+docker-dev-restart: ## 🐳 Redémarrer les conteneurs Docker
+	@echo "$(YELLOW)🐳 Redémarrage des conteneurs...$(NC)"
+	$(MAKE) docker-down
+	$(MAKE) docker-up
+
+docker-dev-logs: ## 📋 Voir les logs des conteneurs
+	@echo "$(GREEN)📋 Logs des conteneurs Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.prod logs -f
+
+docker-dev-clean: ## 🧹 Nettoyer Docker (volumes, images, etc.)
+	@echo "$(YELLOW)🧹 Nettoyage Docker...$(NC)"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file .env.prod down -v
+	docker system prune -f
+	@echo "$(GREEN)✅ Docker nettoyé$(NC)"
+
 
 # =============================================================================
 # AIDE DÉTAILLÉE

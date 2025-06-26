@@ -5,7 +5,7 @@ spring:
 
   # Configuration base de données staging
   datasource:
-    url: jdbc:postgresql://localhost:5432/svs_staging_db
+    url: jdbc:postgresql://db:5432/${DB_NAME:staging_db}
     username: ${DB_USERNAME:staging_user}
     password: ${DB_PASSWORD:staging_password}
     driver-class-name: org.postgresql.Driver
@@ -20,7 +20,7 @@ spring:
   # Configuration JPA staging
   jpa:
     hibernate:
-      ddl-auto: validate # Plus sécurisé en staging
+      ddl-auto: update # Plus sécurisé en staging
     show-sql: false
 
   # Configuration Mail staging
@@ -46,7 +46,7 @@ spring:
 
 # Configuration serveur staging
 server:
-  port: 8080
+  port: ${SERVER_PORT:8081}
   address: 0.0.0.0
 
 # Configuration JWT staging
@@ -65,7 +65,7 @@ app:
 # CORS restrictif en staging - URL spécifique uniquement
 cors:
   allowed-origins:
-    - ${FRONTEND_URL:https://staging.salanevision.sn}
+    - ${FRONTEND_URL:https://svs-frontend.model-technologie.com}
   allowed-methods:
     - "GET"
     - "POST"
