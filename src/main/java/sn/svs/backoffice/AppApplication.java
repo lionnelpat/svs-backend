@@ -99,7 +99,7 @@ public class AppApplication {
 			protocol = "https";
 		}
 
-		String serverPort = env.getProperty("server.port", "8080");
+		String serverPort = env.getProperty("server.port", "8081");
 		String contextPath = env.getProperty("server.servlet.context-path", "/");
 		String hostAddress = "localhost";
 

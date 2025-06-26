@@ -47,7 +47,7 @@ spring:
 
 # Configuration serveur développement
 server:
-  port: 8080
+  port: 8081
   address: 0.0.0.0
 
 # Configuration JWT développement
@@ -106,9 +106,9 @@ spring:
 
   # Configuration base de données staging
   datasource:
-    url: jdbc:postgresql://localhost:5432/svs_staging_db
-    username: ${DB_USERNAME:staging_user}
-    password: ${DB_PASSWORD:staging_password}
+    url: jdbc:postgresql://localhost:5432/svs_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: HikariStaging
@@ -147,7 +147,7 @@ spring:
 
 # Configuration serveur staging
 server:
-  port: 8080
+  port: 8081
   address: 0.0.0.0
 
 # Configuration JWT staging
