@@ -12,7 +12,7 @@ services:
     env_file:
       - .env.staging
     networks:
-      - svs-net
+      - web
     environment:
       - VIRTUAL_HOST=svs-api-backend.model-technologie.com
       - VIRTUAL_PORT=8081
@@ -32,7 +32,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - svs-net
+      - web
 
   adminer:
     image: adminer
@@ -41,10 +41,10 @@ services:
     ports:
       - "8082:8080"
     networks:
-      - svs-net
+      - web
 
 volumes:
   pgdata:
 
 networks:
-  svs-net:
+  web:
