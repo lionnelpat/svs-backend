@@ -20,7 +20,7 @@ spring:
   # Configuration JPA staging
   jpa:
     hibernate:
-      ddl-auto: update # Plus sécurisé en staging
+      ddl-auto: update
     show-sql: false
 
   # Configuration Mail staging
@@ -57,15 +57,16 @@ app:
     refresh-token-expiration-ms: 86400000  # 24 heures
 
   frontend:
-    base-url: ${FRONTEND_URL:https://staging.salanevision.sn}
+    base-url: ${FRONTEND_URL:https://svs-frontend.model-technologie.com}
 
   email:
     from: ${EMAIL_FROM:staging-noreply@salanevision.sn}
 
-# CORS restrictif en staging - URL spécifique uniquement
+# CORS configuration - URLs CORRIGÉES
 cors:
   allowed-origins:
-    - ${FRONTEND_URL:https://svs-frontend.model-technologie.com}
+    - "https://svs-frontend.model-technologie.com"
+    - "http://localhost:4200"  # Pour le développement local
   allowed-methods:
     - "GET"
     - "POST"
@@ -79,20 +80,22 @@ cors:
     - "X-Requested-With"
     - "Accept"
     - "Origin"
+    - "Access-Control-Request-Method"
+    - "Access-Control-Request-Headers"
   exposed-headers:
     - "Authorization"
     - "X-Token-Expires-In"
     - "X-Total-Count"
   allow-credentials: true
-  max-age: 1800
+  max-age: 3600
 
 # Configuration des logs staging
 logging:
   level:
     ROOT: WARN
     sn.svs.backoffice: INFO
-    org.springframework.security: WARN
-    org.springframework.web: WARN
+    org.springframework.security: INFO  # Augmenté pour debug CORS
+    org.springframework.web: INFO       # Augmenté pour debug CORS
     org.hibernate.SQL: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -104,7 +107,7 @@ logging:
 springdoc:
   swagger-ui:
     enabled: true
-    try-it-out-enabled: false # Lecture seule en staging
+    try-it-out-enabled: false
   api-docs:
     enabled: true
 

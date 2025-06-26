@@ -1,6 +1,7 @@
 package sn.svs.backoffice.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,19 +26,11 @@ import sn.svs.backoffice.security.jwt.JwtAuthenticationEntryPoint;
 import sn.svs.backoffice.security.jwt.JwtAuthenticationFilter;
 
 import java.util.Arrays;
-
-import static sn.svs.backoffice.security.constants.SecurityConstants.ROLE_ADMIN;
-import static sn.svs.backoffice.security.constants.SecurityConstants.ROLE_MANAGER;
+import java.util.List;
 
 /**
  * Configuration de sécurité Spring Security avec JWT
  * Définit les règles d'authentification et d'autorisation pour l'application
- *
- * Architecture de sécurité :
- * 1. Authentification JWT via filtre personnalisé
- * 2. Autorisation basée sur les rôles (ADMIN, MANAGER, USER)
- * 3. Protection CORS pour les appels frontend
- * 4. Gestion des erreurs d'authentification
  */
 @Configuration
 @EnableWebSecurity
@@ -48,6 +41,25 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    // Injection des valeurs CORS depuis application-staging.yml
+    @Value("${cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Value("${cors.allowed-methods}")
+    private List<String> allowedMethods;
+
+    @Value("${cors.allowed-headers}")
+    private List<String> allowedHeaders;
+
+    @Value("${cors.exposed-headers}")
+    private List<String> exposedHeaders;
+
+    @Value("${cors.allow-credentials}")
+    private boolean allowCredentials;
+
+    @Value("${cors.max-age}")
+    private long maxAge;
 
     /**
      * Configuration principale de la chaîne de filtres de sécurité
@@ -106,50 +118,13 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
 
-                        // ========== GESTION DES UTILISATEURS ==========
-                        // Seuls les ADMIN peuvent créer/supprimer des utilisateurs
-//                        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
-//                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
-//
-//                        // ADMIN et MANAGER peuvent lister et voir les utilisateurs
-//                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
-//
-//                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-//
-//                        // ADMIN et MANAGER peuvent modifier les utilisateurs
-//                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
-//
-//                        // ========== GESTION DES RÔLES ==========
-//                        // Seuls les ADMIN peuvent gérer les rôles
-//                        .requestMatchers("/api/roles/**").hasRole("ADMIN")
-
-                        // ========== FACTURES MARITIMES (MÉTIER) ==========
-                        // Tous les utilisateurs authentifiés peuvent voir les factures
-//                        .requestMatchers(HttpMethod.GET, "/api/v1/invoices/**").hasAnyRole("ADMIN", "MANAGER", "USER")
-//
-//                        // ADMIN et MANAGER peuvent créer/modifier des factures
-//                        .requestMatchers(
-//                                HttpMethod.POST, "/api/v1/invoices/**"
-//                        ).hasAnyRole("ADMIN", "MANAGER")
-//                        .requestMatchers(
-//                                HttpMethod.PUT, "/api/v1/invoices/**"
-//                        ).hasAnyRole("ADMIN", "MANAGER")
-//                        .requestMatchers(
-//                                HttpMethod.PATCH, "/api/v1/invoices/**"
-//                        ).hasAnyRole("ADMIN", "MANAGER")
-//
-//                        // Seuls les ADMIN peuvent supprimer des factures
-//                        .requestMatchers(HttpMethod.DELETE, "/api/v1/invoices/**").hasRole("ADMIN")
-
                         // ========== PROFIL UTILISATEUR ==========
-                        // Chaque utilisateur peut gérer son propre profil
                         .requestMatchers(
                                 "/api/v1/profile/**",
                                 "/api/v1/auth/change-password"
                         ).authenticated()
 
                         // ========== TOUTES LES AUTRES REQUÊTES ==========
-                        // Nécessitent une authentification
                         .anyRequest().authenticated()
                 )
 
@@ -161,46 +136,19 @@ public class SecurityConfig {
 
     /**
      * Configuration CORS pour permettre les appels depuis le frontend Angular
+     * Utilise maintenant les valeurs du fichier application-staging.yml
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Origines autorisées (à adapter selon ton environnement)
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:4200",    // Angular dev
-                "http://localhost:3000",    // React dev (si besoin)
-                "https://svs-frontend.model-technologie.com" // API Backend
-        ));
-
-        // Méthodes HTTP autorisées
-        configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
-        ));
-
-        // Headers autorisés
-        configuration.setAllowedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type",
-                "X-Requested-With",
-                "Accept",
-                "Origin",
-                "Access-Control-Request-Method",
-                "Access-Control-Request-Headers"
-        ));
-
-        // Headers exposés au frontend
-        configuration.setExposedHeaders(Arrays.asList(
-                "Authorization",
-                "X-Token-Expires-In",
-                "X-Total-Count"
-        ));
-
-        // Autoriser les credentials (cookies, headers d'auth)
-        configuration.setAllowCredentials(true);
-
-        // Durée de cache pour les requêtes preflight
-        configuration.setMaxAge(3600L);
+        // Utiliser les valeurs injectées depuis application-staging.yml
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(allowedMethods);
+        configuration.setAllowedHeaders(allowedHeaders);
+        configuration.setExposedHeaders(exposedHeaders);
+        configuration.setAllowCredentials(allowCredentials);
+        configuration.setMaxAge(maxAge);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -213,7 +161,7 @@ public class SecurityConfig {
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12); // Force 12 pour plus de sécurité
+        return new BCryptPasswordEncoder(12);
     }
 
     /**
@@ -224,7 +172,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
-        authProvider.setHideUserNotFoundExceptions(false); // Pour des messages d'erreur clairs
+        authProvider.setHideUserNotFoundExceptions(false);
         return authProvider;
     }
 
