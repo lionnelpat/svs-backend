@@ -13,6 +13,11 @@ services:
       - .env.staging
     networks:
       - svs-net
+    environment:
+      - VIRTUAL_HOST=svs-api-backend.model-technologie.com
+      - VIRTUAL_PORT=8081
+      - LETSENCRYPT_HOST=svs-api-backend.model-technologie.com
+      - LETSENCRYPT_EMAIL=business.modeltech@gmail.com
 
   db:
     image: postgres:15

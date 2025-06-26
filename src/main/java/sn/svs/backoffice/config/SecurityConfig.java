@@ -170,8 +170,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200",    // Angular dev
                 "http://localhost:3000",    // React dev (si besoin)
-                "https://svs-backoffice.com", // Production
-                "https://staging.svs-backoffice.com" // Staging
+                "https://svs-api-backend.model-technologie.com" // API Backend
         ));
 
         // Méthodes HTTP autorisées
