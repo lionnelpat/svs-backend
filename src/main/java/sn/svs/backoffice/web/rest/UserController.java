@@ -21,7 +21,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/v1/admin/users")
-@CrossOrigin(origins = {"http://localhost:4200", "https://svs-backoffice.com"})
 @Slf4j
 @RequiredArgsConstructor
 //@PreAuthorize("hasRole('ADMIN')")

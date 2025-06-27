@@ -26,7 +26,6 @@ import static sn.svs.backoffice.security.constants.SecurityConstants.HAS_ROLE_AD
  */
 @RestController
 @RequestMapping("/api/v1/admin/roles")
-@CrossOrigin(origins = {"http://localhost:4200", "https://svs-backoffice.com"})
 @Slf4j
 @RequiredArgsConstructor
 //@PreAuthorize(HAS_ROLE_ADMIN)
