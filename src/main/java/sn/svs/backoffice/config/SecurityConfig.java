@@ -8,12 +8,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +29,7 @@ import sn.svs.backoffice.security.jwt.JwtAuthenticationFilter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Configuration de sécurité Spring Security avec JWT
@@ -38,29 +41,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CorsProps cors;
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
-    /**
-     * Configuration CORS pour permettre les appels depuis le frontend Angular
-     * Utilise maintenant les valeurs du fichier application-staging.yml
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(cors.getAllowedOrigins());
-        cfg.setAllowedMethods(cors.getAllowedMethods());
-        cfg.setAllowedHeaders(cors.getAllowedHeaders());
-        cfg.setExposedHeaders(cors.getExposedHeaders());
-        cfg.setAllowCredentials(cors.isAllowCredentials());
-        cfg.setMaxAge(cors.getMaxAge());
-        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
-        src.registerCorsConfiguration("/**", cfg);
-        return src;
-    }
-
 
     /**
      * Configuration principale de la chaîne de filtres de sécurité
@@ -70,33 +53,20 @@ public class SecurityConfig {
         http
                 // Désactiver CSRF car nous utilisons JWT (stateless)
                 .csrf(AbstractHttpConfigurer::disable)
-
                 // Configuration CORS
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
+                .cors(Customizer.withDefaults())
                 // Gestion des erreurs d'authentification
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
-
                 // Configuration des sessions (stateless pour JWT)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
                 // Configuration des autorisations
                 .authorizeHttpRequests(authz -> authz
-
                         // ========== ENDPOINTS PUBLICS ==========
-                        .requestMatchers(
-                                "/api/v1/auth/login",
-                                "/api/v1/auth/refresh-token",
-                                "/api/v1/auth/forgot-password",
-                                "/api/v1/auth/reset-password",
-                                "/api/v1/auth/verify-email",
-                                "/api/v1/auth/validate-token"
-                        ).permitAll()
-
+                        .requestMatchers("/api/v1/auth/*").permitAll()
                         // ========== RESSOURCES STATIQUES ==========
                         .requestMatchers(
                                 "/css/**",
@@ -118,12 +88,6 @@ public class SecurityConfig {
                         // ========== ACTUATOR (MONITORING) ==========
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
-
-                        // ========== PROFIL UTILISATEUR ==========
-                        .requestMatchers(
-                                "/api/v1/profile/**",
-                                "/api/v1/auth/change-password"
-                        ).authenticated()
 
                         // ========== TOUTES LES AUTRES REQUÊTES ==========
                         .anyRequest().authenticated()
@@ -163,4 +127,20 @@ public class SecurityConfig {
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:4200", "https://svs-frontend.model-technologie.com"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Total-Count", "X-Total-Pages"));
+        config.addExposedHeader("X-Total-Count");
+        config.setAllowCredentials(true); // nécessaire si tu veux transmettre le token
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+
 }

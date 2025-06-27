@@ -62,33 +62,6 @@ app:
   email:
     from: ${EMAIL_FROM:staging-noreply@salanevision.sn}
 
-# CORS configuration - URLs CORRIGÉES
-cors:
-  allowed-origins:
-    - "https://svs-frontend.model-technologie.com"
-    - "http://localhost:4200"  # Pour le développement local
-  allowed-methods:
-    - "GET"
-    - "POST"
-    - "PUT"
-    - "PATCH"
-    - "DELETE"
-    - "OPTIONS"
-  allowed-headers:
-    - "Authorization"
-    - "Content-Type"
-    - "X-Requested-With"
-    - "Accept"
-    - "Origin"
-    - "Access-Control-Request-Method"
-    - "Access-Control-Request-Headers"
-  exposed-headers:
-    - "Authorization"
-    - "X-Token-Expires-In"
-    - "X-Total-Count"
-  allow-credentials: true
-  max-age: 3600
-
 # Configuration des logs staging
 logging:
   level:
