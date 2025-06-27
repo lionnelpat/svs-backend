@@ -66,7 +66,7 @@ public class SecurityConfig {
                 // Configuration des autorisations
                 .authorizeHttpRequests(authz -> authz
                         // ========== ENDPOINTS PUBLICS ==========
-                        .requestMatchers("/api/v1/auth/*").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         // ========== RESSOURCES STATIQUES ==========
                         .requestMatchers(
                                 "/css/**",
@@ -131,11 +131,43 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200", "https://svs-frontend.model-technologie.com"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Total-Count", "X-Total-Pages"));
-        config.addExposedHeader("X-Total-Count");
-        config.setAllowCredentials(true); // nécessaire si tu veux transmettre le token
+
+        // ✅ CORRECTION 1: Ajouter TOUS les domaines possibles
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:4200",
+                "https://svs-frontend.model-technologie.com",
+                "https://*.model-technologie.com", // Wildcard pour tous les sous-domaines
+                "http://localhost:*" // Pour le développement local
+        ));
+
+        // ✅ CORRECTION 2: Ajouter OPTIONS pour les requêtes préliminaires
+        config.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"
+        ));
+
+        // ✅ CORRECTION 3: En-têtes complets
+        config.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Total-Count",
+                "X-Total-Pages",
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Headers",
+                "X-Requested-With",
+                "Origin",
+                "Accept",
+                "X-Auth-Token"
+        ));
+
+        // ✅ CORRECTION 4: En-têtes exposés
+        config.setExposedHeaders(Arrays.asList(
+                "X-Total-Count",
+                "X-Total-Pages",
+                "Authorization"
+        ));
+
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L); // Cache des requêtes préliminaires
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
