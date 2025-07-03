@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -177,17 +178,17 @@ public class User implements UserDetails {
         return firstName + " " + lastName;
     }
 
-    public boolean hasRole(Role.RoleName roleName) {
+    public boolean hasRole(RoleName roleName) {
         return roles.stream()
                 .anyMatch(role -> role.getName() == roleName);
     }
 
     public boolean isAdmin() {
-        return hasRole(Role.RoleName.ADMIN);
+        return hasRole(RoleName.ADMIN);
     }
 
     public boolean isManager() {
-        return hasRole(Role.RoleName.MANAGER);
+        return hasRole(RoleName.MANAGER);
     }
 
     public void incrementLoginAttempts() {

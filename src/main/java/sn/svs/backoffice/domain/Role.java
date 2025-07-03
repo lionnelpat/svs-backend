@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -64,23 +65,8 @@ public class Role implements GrantedAuthority {
     // Implémentation de GrantedAuthority
     @Override
     public String getAuthority() {
-        return name.name();
+        return "ROLE_" + name.name();
     }
 
-    // Enum pour les noms de rôles
-    public enum RoleName {
-        ADMIN("Administrateur système"),
-        MANAGER("Gestionnaire"),
-        USER("Utilisateur standard");
 
-        private final String displayName;
-
-        RoleName(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
-    }
 }

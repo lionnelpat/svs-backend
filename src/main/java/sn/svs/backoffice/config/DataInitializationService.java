@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import sn.svs.backoffice.domain.Role;
 import sn.svs.backoffice.domain.User;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
 import sn.svs.backoffice.repository.RoleRepository;
 import sn.svs.backoffice.repository.UserRepository;
 
@@ -56,19 +57,19 @@ public class DataInitializationService implements CommandLineRunner {
 
         // Rôle ADMIN
         createRoleIfNotExists(
-                Role.RoleName.ADMIN,
+                RoleName.ADMIN,
                 "Administrateur système - Accès complet à toutes les fonctionnalités"
         );
 
         // Rôle MANAGER
         createRoleIfNotExists(
-                Role.RoleName.MANAGER,
+                RoleName.MANAGER,
                 "Gestionnaire - Gestion des opérations maritimes et des factures"
         );
 
         // Rôle USER
         createRoleIfNotExists(
-                Role.RoleName.USER,
+                RoleName.USER,
                 "Utilisateur standard - Consultation des données et opérations de base"
         );
 
@@ -78,7 +79,7 @@ public class DataInitializationService implements CommandLineRunner {
     /**
      * Crée un rôle s'il n'existe pas déjà
      */
-    private void createRoleIfNotExists(Role.RoleName roleName, String description) {
+    private void createRoleIfNotExists(RoleName roleName, String description) {
         if (!roleRepository.existsByName(roleName)) {
             Role role = Role.builder()
                     .name(roleName)
@@ -106,7 +107,7 @@ public class DataInitializationService implements CommandLineRunner {
         }
 
         // Récupérer le rôle ADMIN
-        Role adminRole = roleRepository.findByName(Role.RoleName.ADMIN)
+        Role adminRole = roleRepository.findByName(RoleName.ADMIN)
                 .orElseThrow(() -> new RuntimeException("Rôle ADMIN non trouvé. Impossible de créer l'utilisateur admin."));
         log.info("Rôle ADMIN trouvé - création de l'utilisateur admin...");
         // Créer l'utilisateur admin

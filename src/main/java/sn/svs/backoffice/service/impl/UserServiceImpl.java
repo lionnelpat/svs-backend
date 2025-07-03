@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.svs.backoffice.domain.Role;
 import sn.svs.backoffice.domain.User;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
 import sn.svs.backoffice.dto.UserDTO;
 import sn.svs.backoffice.mapper.UserMapper;
 import sn.svs.backoffice.repository.RoleRepository;
@@ -245,7 +246,7 @@ public class UserServiceImpl implements UserService {
 
         // Ne peut pas supprimer les administrateurs système
         boolean isSystemAdmin = user.getRoles().stream()
-                .anyMatch(role -> role.getName() == Role.RoleName.ADMIN);
+                .anyMatch(role -> role.getName() == RoleName.ADMIN);
 
         // Pour l'instant, on permet la suppression de tous les utilisateurs sauf les admins système
         // Tu peux ajouter d'autres règles métier ici

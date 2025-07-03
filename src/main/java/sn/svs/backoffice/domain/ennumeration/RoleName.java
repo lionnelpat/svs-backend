@@ -7,16 +7,17 @@ import lombok.Getter;
  */
 
 @Getter
-public enum Role {
+public enum RoleName {
     ADMIN("Administrateur"),
     MANAGER("Gestionnaire"),
     OPERATOR("Opérateur"),
-    VIEWER("Lecteur");
+    VIEWER("Lecteur"),
+    USER("Utilisateur");
 
     private final String displayName;
 
-    Role(String displayName) {
+    RoleName(String displayName) {
         this.displayName = displayName;
     }
-
 }
+

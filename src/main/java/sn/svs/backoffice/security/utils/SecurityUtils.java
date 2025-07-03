@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import sn.svs.backoffice.domain.Role;
 import sn.svs.backoffice.domain.User;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
 
 import java.util.Optional;
 
@@ -49,7 +50,7 @@ public class SecurityUtils {
      */
     public boolean hasRole(String role) {
         return getCurrentUser()
-                .map(user -> user.hasRole(Role.RoleName.valueOf("ROLE_" + role)))
+                .map(user -> user.hasRole(RoleName.valueOf("ROLE_" + role)))
                 .orElse(false);
     }
 

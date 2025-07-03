@@ -9,8 +9,12 @@ import org.springframework.data.domain.Page;
 import sn.svs.backoffice.domain.Role;
 
 import jakarta.validation.constraints.*;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static sn.svs.backoffice.security.constants.SecurityConstants.USER;
 
 /**
  * DTOs pour l'entité Role
@@ -25,7 +29,7 @@ public class RoleDTO {
     public static class CreateRequest {
 
         @NotNull(message = "Le nom du rôle est obligatoire")
-        private Role.RoleName name;
+        private RoleName name;
 
         @Size(max = 255, message = "La description ne peut pas dépasser 255 caractères")
         private String description;
@@ -50,7 +54,7 @@ public class RoleDTO {
     public static class Response {
 
         private Long id;
-        private Role.RoleName name;
+        private RoleName name;
         private String description;
         private Boolean isActive;
         private LocalDateTime createdAt;
@@ -62,6 +66,8 @@ public class RoleDTO {
                 switch (name) {
                     case ADMIN: return "Administrateur";
                     case MANAGER: return "Gestionnaire";
+                    case OPERATOR: return "Opérateur";
+                    case VIEWER: return "Lecteur";
                     case USER: return "Utilisateur";
                     default: return name.name();
                 }
@@ -77,7 +83,7 @@ public class RoleDTO {
     public static class Summary {
 
         private Long id;
-        private Role.RoleName name;
+        private RoleName name;
         private String description;
         private Boolean isActive;
 
@@ -86,6 +92,8 @@ public class RoleDTO {
                 switch (name) {
                     case ADMIN: return "Administrateur";
                     case MANAGER: return "Gestionnaire";
+                    case OPERATOR: return "Opérateur";
+                    case VIEWER: return "Lecteur";
                     case USER: return "Utilisateur";
                     default: return name.name();
                 }

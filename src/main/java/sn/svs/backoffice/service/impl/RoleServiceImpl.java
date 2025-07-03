@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.svs.backoffice.domain.Role;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
 import sn.svs.backoffice.dto.RoleDTO;
 import sn.svs.backoffice.mapper.RoleMapper;
 import sn.svs.backoffice.repository.RoleRepository;
@@ -240,9 +241,11 @@ public class RoleServiceImpl implements RoleService {
      * Vérifie si un rôle est un rôle système
      */
     private boolean isSystemRole(Role role) {
-        return role.getName() == Role.RoleName.ADMIN ||
-                role.getName() == Role.RoleName.MANAGER ||
-                role.getName() == Role.RoleName.USER;
+        return role.getName() == RoleName.ADMIN ||
+                role.getName() == RoleName.MANAGER ||
+                role.getName() == RoleName.OPERATOR ||
+                role.getName() == RoleName.VIEWER ||
+                role.getName() == RoleName.USER;
     }
 }
 

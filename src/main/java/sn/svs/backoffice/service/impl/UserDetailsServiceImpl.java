@@ -192,28 +192,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * Recherche l'utilisateur par username ou email
      */
     private User findUserByUsernameOrEmail(String identifier) {
-        // D'abord chercher par username
-        Optional<User> userByUsername = userRepository.findByUsernameOrEmailWithRoles(identifier);
-
-        if (userByUsername.isPresent()) {
-            log.debug("Utilisateur trouvé par username: {}", identifier);
-            return userByUsername.get();
-        }
-
-        // Si pas trouvé par username, chercher par email
-        Optional<User> userByEmail = userRepository.findByEmailWithRoles(identifier);
-
-        if (userByEmail.isPresent()) {
-            log.debug("Utilisateur trouvé par email: {}", identifier);
-            return userByEmail.get();
-        }
-
-        // Aucun utilisateur trouvé
-        log.warn("Tentative de connexion échouée - Utilisateur non trouvé: {}", identifier);
-        throw new UsernameNotFoundException(
-                String.format("Utilisateur non trouvé avec l'identifiant: %s", identifier)
-        );
+        return userRepository.findByUsername(identifier)
+                .or(() -> userRepository.findByEmail(identifier))
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé: " + identifier));
     }
+
+
 
     /**
      * Valide l'état du compte utilisateur

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import sn.svs.backoffice.domain.Role;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,12 +26,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     /**
      * Recherche un rôle par son nom
      */
-    Optional<Role> findByName(Role.RoleName name);
+    Optional<Role> findByName(RoleName name);
 
     /**
      * Vérifie si un rôle existe par nom
      */
-    boolean existsByName(Role.RoleName name);
+    boolean existsByName(RoleName name);
 
     // ========== RECHERCHE PAR STATUT ==========
 
@@ -54,13 +55,13 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     /**
      * Trouve plusieurs rôles par leurs noms
      */
-    List<Role> findByNameIn(Set<Role.RoleName> names);
+    List<Role> findByNameIn(Set<RoleName> names);
 
     /**
      * Trouve tous les rôles actifs par leurs noms
      */
     @Query("SELECT r FROM Role r WHERE r.name IN :names AND r.isActive = true")
-    List<Role> findActiveRolesByNames(@Param("names") Set<Role.RoleName> names);
+    List<Role> findActiveRolesByNames(@Param("names") Set<RoleName> names);
 
     // ========== RECHERCHE PAR DATES ==========
 
@@ -99,20 +100,20 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
      * Compte le nombre d'utilisateurs pour un rôle donné
      */
     @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = :roleName")
-    Long countUsersWithRole(@Param("roleName") Role.RoleName roleName);
+    Long countUsersWithRole(@Param("roleName") RoleName roleName);
 
     // ========== RECHERCHE POUR VALIDATION ==========
 
     /**
      * Trouve les rôles par défaut (les 3 rôles principaux)
      */
-    @Query("SELECT r FROM Role r WHERE r.name IN ('ADMIN', 'MANAGER', 'USER')")
+    @Query("SELECT r FROM Role r WHERE r.name IN ('ADMIN', 'MANAGER', 'OPERATOR', 'VIEWER', 'USER')")
     List<Role> findDefaultRoles();
 
     /**
      * Vérifie si tous les rôles par défaut existent
      */
-    @Query("SELECT COUNT(r) FROM Role r WHERE r.name IN ('ADMIN', 'MANAGER', 'USER')")
+    @Query("SELECT COUNT(r) FROM Role r WHERE r.name IN ('ADMIN', 'MANAGER',  'OPERATOR', 'VIEWER', 'USER')")
     Long countDefaultRoles();
 
     // ========== MÉTHODES UTILITAIRES ==========

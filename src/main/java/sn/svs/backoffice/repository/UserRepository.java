@@ -3,6 +3,7 @@ package sn.svs.backoffice.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import sn.svs.backoffice.domain.Role;
 import sn.svs.backoffice.domain.User;
+import sn.svs.backoffice.domain.ennumeration.RoleName;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +25,12 @@ import java.util.Set;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+
+    @EntityGraph(attributePaths = "roles")
+    Optional<User> findByUsername(String username);
+
+    @EntityGraph(attributePaths = "roles")
+    Optional<User> findByEmail(String email);
 
     /**
      * Trouve un utilisateur avec ses rôles chargés par username
@@ -120,13 +128,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Trouve tous les utilisateurs ayant un rôle spécifique
      */
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
-    List<User> findByRole(@Param("roleName") Role.RoleName roleName);
+    List<User> findByRole(@Param("roleName") RoleName roleName);
 
     /**
      * Trouve tous les utilisateurs ayant l'un des rôles spécifiés
      */
     @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE r.name IN :roleNames")
-    List<User> findByRoleIn(@Param("roleNames") Set<Role.RoleName> roleNames);
+    List<User> findByRoleIn(@Param("roleNames") Set<RoleName> roleNames);
 
     /**
      * Trouve tous les utilisateurs administrateurs actifs
@@ -237,7 +245,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Trouve tous les utilisateurs par rôle avec pagination
      */
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
-    Page<User> findByRole(@Param("roleName") Role.RoleName roleName, Pageable pageable);
+    Page<User> findByRole(@Param("roleName") RoleName roleName, Pageable pageable);
 
     // ========== OPÉRATIONS DE MISE À JOUR ==========
 
@@ -293,7 +301,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Compte le nombre d'utilisateurs par rôle
      */
     @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.name = :roleName")
-    Long countUsersByRole(@Param("roleName") Role.RoleName roleName);
+    Long countUsersByRole(@Param("roleName") RoleName roleName);
 
     /**
      * Compte les nouvelles inscriptions depuis une date

@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/auth/forgot-password",
             "/api/v1/auth/reset-password",
             "/api/v1/auth/verify-email",
-            "/actuator/health",
+            "/management/health",
             "/swagger-ui",
             "/v3/api-docs",
             "/favicon.ico"
