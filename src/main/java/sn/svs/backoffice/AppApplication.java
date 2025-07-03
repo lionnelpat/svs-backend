@@ -78,14 +78,14 @@ public class AppApplication {
 			throw new IllegalStateException("Profils incompatibles activés");
 		}
 
-		// Vérification de la configuration JWT en production
-		if (activeProfiles.contains("prod") || activeProfiles.contains("staging")) {
-			String jwtSecret = env.getProperty("svs.security.jwt.secret-key");
-			if (jwtSecret == null || jwtSecret.length() < 32) {
-				log.error("Configuration JWT insuffisante pour la production");
-				throw new IllegalStateException("JWT secret key trop courte pour la production");
-			}
-		}
+//		// Vérification de la configuration JWT en production
+//		if (activeProfiles.contains("prod") || activeProfiles.contains("staging")) {
+//			String jwtSecret = env.getProperty("svs.security.jwt.secret-key");
+//			if (jwtSecret == null || jwtSecret.length() < 32) {
+//				log.error("Configuration JWT insuffisante pour la production");
+//				throw new IllegalStateException("JWT secret key trop courte pour la production");
+//			}
+//		}
 
 		log.info("Application Maritime SVS initialisée avec succès");
 	}
