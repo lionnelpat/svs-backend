@@ -22,4 +22,5 @@ jobs:
           port: 22
           script: |
             cd /opt/svs-deploy
+            ./deploy.sh clean
             ./deploy.sh backend
