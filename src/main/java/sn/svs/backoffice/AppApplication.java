@@ -30,12 +30,12 @@ import java.util.Collection;
 				description = "API pour la gestion des factures et dépenses maritimes - Dakar, Sénégal",
 				contact = @Contact(
 						name = "Équipe SVS",
-						email = "support@svs-maritime.sn",
-						url = "https://svs-maritime.sn"
+						email = "support@salanevision.com",
+						url = "https://salanevision.com"
 				),
 				license = @License(
 						name = "Propriétaire SVS",
-						url = "https://svs-maritime.sn/license"
+						url = "https://salanevision.com/license"
 				)
 		)
 )

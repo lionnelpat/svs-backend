@@ -66,6 +66,7 @@ app:
   email:
     from: ${EMAIL_FROM:business.modeltech@gmail.com}
 
+
 cors:
   allowed-origins:
     - ${FRONTEND_URL:https://svs-frontend.model-technologie.com}
@@ -123,3 +124,10 @@ management:
   server:
     port: ${MANAGEMENT_PORT:8086}
     base-path: /management
+svs:
+  security:
+    jwt:
+      header-name: Authorization
+      token-prefix: Bearer
+      secret-key: ${JWT_SECRET:U1ZTLVNhbGFuZS1WaXNpb24tU3RhZ2luZy1TZWNyZXQtS2V5LUZvci1KV1QtVG9rZW4tR2VuZXJhdGlvbi0yMDI1}
+

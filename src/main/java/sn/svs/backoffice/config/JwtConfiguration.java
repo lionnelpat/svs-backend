@@ -16,7 +16,7 @@ public class JwtConfiguration {
      * Clé secrète pour signer les tokens JWT
      * IMPORTANT: Doit être changée en production
      */
-    private String secretKey = "SVS-Maritime-Default-Secret-Key-Change-In-Production";
+    private String secretKey = "1124d6d93c8dddb0c94bbd0fc53eefb07996b568ffe28db4ab697e345fd9253bea6e8c88a3b23a125b264cd39ea054815447f33e6621b2fc68636069ab6e9fca";
 
     /**
      * Durée de validité du token en secondes (par défaut 24h)
