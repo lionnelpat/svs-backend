@@ -119,4 +119,7 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: never
+      show-details: when_authorized
+  server:
+    port: ${MANAGEMENT_PORT:8086}
+    base-path: /management

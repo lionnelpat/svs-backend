@@ -47,7 +47,7 @@ server:
 # Configuration de base JWT
 app:
   jwt:
-    issuer: "svs-backoffice"
+    issuer: "svs-backend"
     # Les autres valeurs seront définies dans les profils spécifiques
 
   email:
@@ -70,12 +70,14 @@ management:
   endpoint:
     health:
       show-details: when_authorized
-      roles: 'ADMIN'
+      roles: ''
       probes:
         enabled: true
   health:
     mail:
       enabled: false
+  server:
+    base-path: /management
 
 # Configuration OpenAPI/Swagger
 springdoc:
