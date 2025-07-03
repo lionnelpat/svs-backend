@@ -93,5 +93,5 @@ springdoc:
   show-actuator: true
   group-configs:
     - group: 'svs-api'
-      display-name: 'SVS Maritime API - Salane Vision S.a.r.l'
+      display-name: 'SVS API - Salane Vision S.a.r.l'
       paths-to-match: '/api/v1/**'

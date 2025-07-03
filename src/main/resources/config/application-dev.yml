@@ -5,7 +5,7 @@ spring:
 
   # Configuration base de données développement
   datasource:
-    url: jdbc:postgresql://db:5432/${DB_NAME:svs_db}
+    url: jdbc:postgresql://localhost:5432/${DB_NAME:svs_db}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -53,7 +53,7 @@ server:
 # Configuration JWT développement
 app:
   jwt:
-    secret: "U1ZTLURha2FyLURldmVsb3BtZW50LUtleS1Gb3ItSldULVRva2VuLUdlbmVyYXRpb24tMjAyNQ=="
+    secret:  "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
     access-token-expiration-ms: 3600000  # 1 heure en dev (plus long pour debug)
     refresh-token-expiration-ms: 86400000  # 24 heures
 
@@ -64,15 +64,6 @@ app:
     from: "dev-noreply@salanevision.sn"
 
 # CORS spécifique développement - PERMISSIF
-cors:
-  allowed-origins:
-    - "http://localhost:4200"  # Angular dev
-    - "http://localhost:3000"  # React dev (si besoin)
-    - "http://127.0.0.1:4200"  # Alternative localhost
-  allowed-methods: "*"
-  allowed-headers: "*"
-  allow-credentials: true
-  max-age: 3600
 
 # Configuration des logs développement
 logging:

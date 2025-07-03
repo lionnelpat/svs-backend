@@ -53,15 +53,6 @@ server:
     context-path: /
   forward-headers-strategy: framework
 
-cors:
-  allowed-origins:
-    - https://svs-frontend.model-technologie.com
-    - http://localhost:4200
-  allowed-methods: GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH
-  allowed-headers: "*"
-  allow-credentials: true
-  max-age: 3600
-
 # Configuration JWT staging
 app:
   jwt:
@@ -73,7 +64,30 @@ app:
     base-url: ${FRONTEND_URL:https://svs-frontend.model-technologie.com}
 
   email:
-    from: ${EMAIL_FROM:staging-noreply@salanevision.sn}
+    from: ${EMAIL_FROM:business.modeltech@gmail.com}
+
+cors:
+  allowed-origins:
+    - ${FRONTEND_URL:https://svs-frontend.model-technologie.com}
+  allowed-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allowed-headers:
+    - "Authorization"
+    - "Content-Type"
+    - "X-Requested-With"
+    - "Accept"
+    - "Origin"
+  exposed-headers:
+    - "Authorization"
+    - "X-Token-Expires-In"
+    - "X-Total-Count"
+  allow-credentials: true
+  max-age: 1800
 
 # Configuration des logs staging
 logging:

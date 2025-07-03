@@ -103,7 +103,7 @@ public class User implements UserDetails {
     private String updatedBy;
 
     // Relations
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -205,5 +205,9 @@ public class User implements UserDetails {
 
     public void updateLastLogin() {
         this.lastLogin = LocalDateTime.now();
+    }
+
+    public boolean isActive() {
+        return isActive;
     }
 }

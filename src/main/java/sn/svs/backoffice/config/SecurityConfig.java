@@ -50,54 +50,38 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                // Désactiver CSRF car nous utilisons JWT (stateless)
-                .csrf(AbstractHttpConfigurer::disable)
-                // Configuration CORS
-                .cors(Customizer.withDefaults())
-                // Gestion des erreurs d'authentification
-                .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                )
-                // Configuration des sessions (stateless pour JWT)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                // Configuration des autorisations
-                .authorizeHttpRequests(authz -> authz
-                        // ========== ENDPOINTS PUBLICS ==========
+        http.csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        // ========== RESSOURCES STATIQUES ==========
-                        .requestMatchers(
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/static/**",
-                                "/favicon.ico"
-                        ).permitAll()
-
-                        // ========== DOCUMENTATION API ==========
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
-
-                        // ========== ACTUATOR (MONITORING) ==========
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
-
-                        // ========== TOUTES LES AUTRES REQUÊTES ==========
                         .anyRequest().authenticated()
                 )
-
-                // Ajouter le filtre JWT avant le filtre d'authentification par défaut
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://svs-frontend.model-technologie.com")); // Autorise votre frontend Angular
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("authorization", "content-type", "x-auth-token"));
+        configuration.setExposedHeaders(List.of("x-auth-token"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 
     /**
      * Encodeur de mot de passe BCrypt
@@ -126,52 +110,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        // ✅ CORRECTION 1: Ajouter TOUS les domaines possibles
-        config.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:4200",
-                "https://svs-frontend.model-technologie.com",
-                "https://*.model-technologie.com", // Wildcard pour tous les sous-domaines
-                "http://localhost:*" // Pour le développement local
-        ));
-
-        // ✅ CORRECTION 2: Ajouter OPTIONS pour les requêtes préliminaires
-        config.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"
-        ));
-
-        // ✅ CORRECTION 3: En-têtes complets
-        config.setAllowedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type",
-                "X-Total-Count",
-                "X-Total-Pages",
-                "Access-Control-Allow-Origin",
-                "Access-Control-Allow-Headers",
-                "X-Requested-With",
-                "Origin",
-                "Accept",
-                "X-Auth-Token"
-        ));
-
-        // ✅ CORRECTION 4: En-têtes exposés
-        config.setExposedHeaders(Arrays.asList(
-                "X-Total-Count",
-                "X-Total-Pages",
-                "Authorization"
-        ));
-
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L); // Cache des requêtes préliminaires
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
     }
 
 

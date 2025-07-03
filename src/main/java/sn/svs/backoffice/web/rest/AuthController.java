@@ -55,6 +55,11 @@ public class AuthController {
     @Autowired
     private AuthExceptionHandler authExceptionHandler;
 
+    @RequestMapping(value = "/login", method = RequestMethod.OPTIONS)
+    public ResponseEntity<?> handleOptions() {
+        return ResponseEntity.ok().build();
+    }
+
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@Valid @RequestBody AuthDTO.LoginRequest loginRequest,
