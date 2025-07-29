@@ -6,7 +6,7 @@ spring:
 
   # Configuration base de données production
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/svs_production_db}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/svs_prod_db}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -54,20 +54,19 @@ server:
 app:
   jwt:
     secret: ${JWT_SECRET} # OBLIGATOIRE en variable d'environnement
-    access-token-expiration-ms: ${JWT_ACCESS_EXPIRATION:900000}  # 15 minutes
+    access-token-expiration-ms: ${JWT_ACCESS_EXPIRATION:86400000}  # 15 minutes
     refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRATION:86400000}  # 24 heures
 
   frontend:
-    base-url: ${FRONTEND_URL:https://app.salanevision.sn}
+    base-url: ${FRONTEND_URL:https://svs-frontend.salanevision.com}
 
   email:
-    from: ${EMAIL_FROM:noreply@salanevision.sn}
+    from: ${EMAIL_FROM:noreply@salanevision.com}
 
 # CORS très restrictif en production
 cors:
   allowed-origins:
-    - ${FRONTEND_URL:https://app.salanevision.sn}
-    - ${ADMIN_URL:https://admin.salanevision.sn}
+    - ${FRONTEND_URL:https://www.salanevision.com}
   allowed-methods:
     - "GET"
     - "POST"

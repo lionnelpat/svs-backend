@@ -102,4 +102,8 @@ public interface ExpenseCategoryRepository extends JpaRepository<ExpenseCategory
     List<Object[]> getCategoryStats();
 
     boolean existsByIdAndActiveTrue(Long categorieId);
+
+    @Query("SELECT ec.code FROM ExpenseCategory ec WHERE ec.code LIKE 'CAT-DEP-%' ORDER BY ec.code DESC LIMIT 1")
+    String findLastCode(); // fonctionne si tous les codes ont 3 chiffres, ex. CAT-DEP-001 à CAT-DEP-999
+
 }

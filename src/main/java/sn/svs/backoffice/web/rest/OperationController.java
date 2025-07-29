@@ -50,7 +50,7 @@ public class OperationController {
     public ResponseEntity<ApiResponseDTO<OperationDTO.Response>> createOperation(
             @Valid @RequestBody OperationDTO.CreateRequest request) {
 
-        log.info("Demande de création d'opération reçue: {}", request.getCode());
+        log.info("Demande de création d'opération reçue: {}", request.getNom());
 
         OperationDTO.Response response = operationService.create(request);
 

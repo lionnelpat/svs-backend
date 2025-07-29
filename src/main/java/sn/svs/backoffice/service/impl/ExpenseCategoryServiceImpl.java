@@ -9,12 +9,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.svs.backoffice.domain.ExpenseCategory;
+import sn.svs.backoffice.domain.Operation;
 import sn.svs.backoffice.dto.ExpenseCategoryDTO;
 import sn.svs.backoffice.exceptions.DuplicateResourceException;
 import sn.svs.backoffice.exceptions.ResourceNotFoundException;
 import sn.svs.backoffice.mapper.ExpenseCategoryMapper;
 import sn.svs.backoffice.repository.ExpenseCategoryRepository;
 import sn.svs.backoffice.service.ExpenseCategoryService;
+import sn.svs.backoffice.utils.CodeGenerator;
 
 import java.util.List;
 
@@ -30,23 +32,22 @@ public class ExpenseCategoryServiceImpl implements ExpenseCategoryService {
 
     private final ExpenseCategoryRepository categoryRepository;
     private final ExpenseCategoryMapper categoryMapper;
+    private final ExpenseCategoryRepository expenseCategoryRepository;
 
     @Override
     public ExpenseCategoryDTO.Response create(ExpenseCategoryDTO.CreateRequest request) {
-        log.info("Création d'une nouvelle catégorie avec le code: {}", request.getCode());
+        log.info("Création d'une nouvelle catégorie avec le nom: {}", request.getNom());
 
-        // Vérifier l'unicité du code
-        if (categoryRepository.existsByCode(request.getCode())) {
-            throw new DuplicateResourceException("Une catégorie avec le code '" + request.getCode() + "' existe déjà");
-        }
+        String code = CodeGenerator.generate(
+                "CAT-DEP",
+                expenseCategoryRepository::existsByCode,
+                expenseCategoryRepository::findLastCode
+        );
 
-        // Vérifier l'unicité du nom (insensible à la casse)
-        if (categoryRepository.existsByNomIgnoreCase(request.getNom())) {
-            throw new DuplicateResourceException("Une catégorie avec le nom '" + request.getNom() + "' existe déjà");
-        }
 
         // Convertir et sauvegarder
         ExpenseCategory category = categoryMapper.toEntity(request);
+        category.setCode(code);
         ExpenseCategory savedCategory = categoryRepository.save(category);
 
         log.info("Catégorie créée avec succès - ID: {}, Code: {}", savedCategory.getId(), savedCategory.getCode());
@@ -59,12 +60,6 @@ public class ExpenseCategoryServiceImpl implements ExpenseCategoryService {
 
         ExpenseCategory existingCategory = findCategoryById(id);
 
-        // Vérifier l'unicité du code si modifié
-        if (request.getCode() != null && !request.getCode().equals(existingCategory.getCode())) {
-            if (categoryRepository.existsByCodeAndIdNot(request.getCode(), id)) {
-                throw new DuplicateResourceException("Une catégorie avec le code '" + request.getCode() + "' existe déjà");
-            }
-        }
 
         // Vérifier l'unicité du nom si modifié (insensible à la casse)
         if (request.getNom() != null && !request.getNom().equalsIgnoreCase(existingCategory.getNom())) {
@@ -110,7 +105,7 @@ public class ExpenseCategoryServiceImpl implements ExpenseCategoryService {
         String searchCriteria = categoryMapper.buildSearchCriteria(filter);
         Page<ExpenseCategory> categoriesPage = categoryRepository.findWithFilters(
                 searchCriteria,
-                filter.getActive(),
+                true,
                 pageable
         );
 

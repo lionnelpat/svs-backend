@@ -34,10 +34,10 @@ public class ExpenseCategoryDTO {
         @Schema(description = "Nom de la catégorie", example = "Transport")
         private String nom;
 
-        @Size(min = 2, max = 20, message = "Le code doit contenir entre 2 et 20 caractères")
-        @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Le code ne peut contenir que des lettres majuscules, chiffres, tirets et underscores")
-        @Schema(description = "Code unique de la catégorie", example = "TRANSPORT")
-        private String code;
+//        @Size(min = 2, max = 20, message = "Le code doit contenir entre 2 et 20 caractères")
+//        @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Le code ne peut contenir que des lettres majuscules, chiffres, tirets et underscores")
+//        @Schema(description = "Code unique de la catégorie", example = "TRANSPORT")
+//        private String code;
 
         @Size(max = 500, message = "La description ne peut pas dépasser 500 caractères")
         @Schema(description = "Description de la catégorie", example = "Frais de transport et déplacement")
@@ -58,9 +58,9 @@ public class ExpenseCategoryDTO {
         @Schema(description = "Nom de la catégorie")
         private String nom;
 
-        @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Le code ne peut contenir que des lettres majuscules, chiffres, tirets et underscores")
-        @Schema(description = "Code unique de la catégorie")
-        private String code;
+//        @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Le code ne peut contenir que des lettres majuscules, chiffres, tirets et underscores")
+//        @Schema(description = "Code unique de la catégorie")
+//        private String code;
 
         @Size(max = 500, message = "La description ne peut pas dépasser 500 caractères")
         @Schema(description = "Description de la catégorie")

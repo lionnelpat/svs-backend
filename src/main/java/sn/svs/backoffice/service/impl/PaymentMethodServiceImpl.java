@@ -80,7 +80,6 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
 
         Page<PaymentMethod> paymentMethodPage = paymentMethodRepository.findWithFilters(
                 searchCriteria,
-                filter.getActive(),
                 pageable
         );
 
@@ -149,6 +148,7 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     public void delete(Long id) {
         log.info("Suppression logique du mode de paiement avec l'ID: {}", id);
         paymentMethodRepository.updateActifStatus(id, false, LocalDateTime.now(), getCurrentUsername());
+        paymentMethodRepository.updateActiveStatus(id, false, LocalDateTime.now(), getCurrentUsername());
         log.info("Mode de paiement supprimé logiquement avec succès: {}", id);
     }
 

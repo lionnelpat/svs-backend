@@ -139,7 +139,7 @@ public class ExpenseSupplierController {
 
         ExpenseSupplierDTO.SearchFilter filter = ExpenseSupplierDTO.SearchFilter.builder()
                 .search(search)
-                .active(active)
+                .active(true)
                 .page(page)
                 .size(size)
                 .sortBy(sortBy)

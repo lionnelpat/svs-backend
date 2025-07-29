@@ -136,7 +136,7 @@ public class ExpenseSupplierServiceImpl implements ExpenseSupplierService {
 
         Page<ExpenseSupplier> suppliersPage = supplierRepository.findWithFilters(
                 searchCriteria,
-                filter.getActive(),
+                true,
                 pageable
         );
 

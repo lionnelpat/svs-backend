@@ -51,7 +51,7 @@ public class ExpenseCategoryController {
     public ResponseEntity<ApiResponseDTO<ExpenseCategoryDTO.Response>> createCategory(
             @Valid @RequestBody ExpenseCategoryDTO.CreateRequest request) {
 
-        log.info("Demande de création de catégorie reçue: {}", request.getCode());
+        log.info("Demande de création de catégorie reçue: {}", request.getNom());
 
         ExpenseCategoryDTO.Response response = categoryService.create(request);
 
@@ -164,7 +164,7 @@ public class ExpenseCategoryController {
 
         ExpenseCategoryDTO.SearchFilter filter = ExpenseCategoryDTO.SearchFilter.builder()
                 .search(search)
-                .active(active)
+                .active(true)
                 .page(page)
                 .size(size)
                 .sortBy(sortBy)

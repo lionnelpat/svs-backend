@@ -105,10 +105,19 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Lo
     @Modifying
     @Query("UPDATE PaymentMethod pm SET pm.actif = :actif, pm.updatedAt = :updatedAt, pm.updatedBy = :updatedBy " +
             "WHERE pm.id = :id")
-    int updateActifStatus(@Param("id") Long id, @Param("actif") Boolean actif,
+    void updateActifStatus(@Param("id") Long id, @Param("actif") Boolean actif,
                           @Param("updatedAt") LocalDateTime updatedAt, @Param("updatedBy") String updatedBy);
 
 
+    @Modifying
+    @Query("UPDATE PaymentMethod pm SET pm.active = :active, pm.updatedAt = :updatedAt, pm.updatedBy = :updatedBy " +
+            "WHERE pm.id = :id")
+    void updateActiveStatus(
+            @Param("id") Long id,
+            @Param("active") Boolean active,
+            @Param("updatedAt") LocalDateTime updatedAt,
+            @Param("updatedBy") String updatedBy
+    );
 
     /**
      * Recherche avancée avec filtres
@@ -119,11 +128,9 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Lo
                LOWER(o.nom) LIKE :search OR 
                LOWER(o.code) LIKE :search OR 
                LOWER(o.description) LIKE :search)
-        AND (:active IS NULL OR o.active = :active)
         """)
     Page<PaymentMethod> findWithFilters(
             @Param("search") String search,
-            @Param("active") Boolean active,
             Pageable pageable
     );
 

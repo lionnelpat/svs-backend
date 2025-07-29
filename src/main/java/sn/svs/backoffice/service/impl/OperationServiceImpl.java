@@ -15,6 +15,7 @@ import sn.svs.backoffice.exceptions.ResourceNotFoundException;
 import sn.svs.backoffice.mapper.OperationMapper;
 import sn.svs.backoffice.repository.OperationRepository;
 import sn.svs.backoffice.service.OperationService;
+import sn.svs.backoffice.utils.CodeGenerator;
 
 import java.util.List;
 
@@ -33,33 +34,30 @@ public class OperationServiceImpl implements OperationService {
 
     @Override
     public OperationDTO.Response create(OperationDTO.CreateRequest request) {
-        log.info("Création d'une nouvelle opération avec le code: {}", request.getCode());
+        log.info("Création d'une nouvelle opération...");
 
-        // Vérifier l'unicité du code
-        if (operationRepository.existsByCode(request.getCode())) {
-            throw new DuplicateResourceException("Une opération avec le code '" + request.getCode() + "' existe déjà");
-        }
+        String code = CodeGenerator.generate(
+                "OPE",
+                operationRepository::existsByCode,
+                operationRepository::findLastCode
+        );
 
         // Convertir et sauvegarder
         Operation operation = operationMapper.toEntity(request);
+        operation.setCode(code);
+
         Operation savedOperation = operationRepository.save(operation);
 
         log.info("Opération créée avec succès - ID: {}, Code: {}", savedOperation.getId(), savedOperation.getCode());
         return operationMapper.toResponse(savedOperation);
     }
 
+
     @Override
     public OperationDTO.Response update(Long id, OperationDTO.UpdateRequest request) {
         log.info("Mise à jour de l'opération ID: {}", id);
 
         Operation existingOperation = findOperationById(id);
-
-        // Vérifier l'unicité du code si modifié
-        if (request.getCode() != null && !request.getCode().equals(existingOperation.getCode())) {
-            if (operationRepository.existsByCodeAndIdNot(request.getCode(), id)) {
-                throw new DuplicateResourceException("Une opération avec le code '" + request.getCode() + "' existe déjà");
-            }
-        }
 
         // Mettre à jour les champs
         operationMapper.updateEntity(request, existingOperation);
@@ -90,6 +88,7 @@ public class OperationServiceImpl implements OperationService {
     @Transactional(readOnly = true)
     public OperationDTO.PageResponse findAll(OperationDTO.SearchFilter filter) {
         log.debug("Recherche des opérations avec filtre: {}", filter);
+
 
         // Construire le Pageable
         Pageable pageable = buildPageable(filter);
@@ -196,4 +195,6 @@ public class OperationServiceImpl implements OperationService {
 
         return PageRequest.of(filter.getPage(), filter.getSize(), sort);
     }
+
+
 }

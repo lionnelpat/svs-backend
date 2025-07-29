@@ -37,11 +37,11 @@ public class OperationDTO {
         @Schema(description = "Description de l'opération", example = "Service de pilotage pour l'entrée au port")
         private String description;
 
-        @NotBlank(message = "Le code de l'opération est obligatoire")
-        @Size(min = 2, max = 20, message = "Le code doit contenir entre 2 et 20 caractères")
-        @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Le code ne peut contenir que des lettres majuscules, chiffres, tirets et underscores")
-        @Schema(description = "Code unique de l'opération", example = "PILOT_ENTRY")
-        private String code;
+//        @NotBlank(message = "Le code de l'opération est obligatoire")
+//        @Size(min = 2, max = 20, message = "Le code doit contenir entre 2 et 20 caractères")
+//        @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Le code ne peut contenir que des lettres majuscules, chiffres, tirets et underscores")
+//        @Schema(description = "Code unique de l'opération", example = "PILOT_ENTRY")
+//        private String code;
 
         @NotNull(message = "Le prix en XOF est obligatoire")
         @DecimalMin(value = "0.0", inclusive = false, message = "Le prix en XOF doit être positif")
@@ -73,10 +73,10 @@ public class OperationDTO {
         @Schema(description = "Description de l'opération")
         private String description;
 
-        @Size(min = 2, max = 20, message = "Le code doit contenir entre 2 et 20 caractères")
-        @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Le code ne peut contenir que des lettres majuscules, chiffres, tirets et underscores")
-        @Schema(description = "Code unique de l'opération")
-        private String code;
+//        @Size(min = 2, max = 20, message = "Le code doit contenir entre 2 et 20 caractères")
+//        @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Le code ne peut contenir que des lettres majuscules, chiffres, tirets et underscores")
+//        @Schema(description = "Code unique de l'opération")
+//        private String code;
 
         @DecimalMin(value = "0.0", inclusive = false, message = "Le prix en XOF doit être positif")
         @Digits(integer = 13, fraction = 2, message = "Le prix en XOF ne peut pas dépasser 13 chiffres avant la virgule et 2 après")

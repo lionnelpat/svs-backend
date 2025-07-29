@@ -107,7 +107,7 @@ public class PaymentMethodController {
             @PathVariable Long id) {
 
         log.info("Suppression logique du mode de paiement ID: {}", id);
-        paymentMethodService.delete(id);
+        paymentMethodService.hardDelete(id);
         return ResponseEntity.noContent().build();
     }
 

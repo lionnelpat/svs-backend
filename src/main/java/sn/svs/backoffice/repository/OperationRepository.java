@@ -95,4 +95,8 @@ public interface OperationRepository extends JpaRepository<Operation, Long> {
         GROUP BY o.active
         """)
     List<Object[]> getOperationStats();
+
+    @Query("SELECT o.code FROM Operation o WHERE o.code LIKE 'OPE-%' ORDER BY o.code DESC LIMIT 1")
+    String findLastCode();
+
 }
