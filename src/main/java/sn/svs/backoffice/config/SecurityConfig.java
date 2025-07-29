@@ -71,7 +71,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://svs-frontend.model-technologie.com")); // Autorise votre frontend Angular
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://svs-frontend.salanevision.com", "https://www.salanevision.com")); // Autorise votre frontend Angular
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("authorization", "content-type", "x-auth-token"));
         configuration.setExposedHeaders(List.of("x-auth-token"));
