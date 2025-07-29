@@ -21,7 +21,7 @@ spring:
   # Configuration JPA production
   jpa:
     hibernate:
-      ddl-auto: none # Aucune modification automatique en production
+      ddl-auto: update # Aucune modification automatique en production
     show-sql: false
 
   # Configuration Mail production
