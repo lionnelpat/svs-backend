@@ -248,4 +248,69 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
      */
     @Query("SELECT e.numero FROM Expense e WHERE e.active = true")
     List<String> findAllActiveNumeros();
+
+
+    /**
+     * Compte le nombre total de dépenses
+     */
+    @Query("SELECT COUNT(e) FROM Expense e")
+    Long countTotalExpenses();
+
+    /**
+     * Calcule le montant total des dépenses en XOF
+     */
+    @Query("SELECT SUM(e.montantXOF) FROM Expense e WHERE e.active = true AND e.statut='PAYEE'")
+    BigDecimal sumTotalAmountExpenses();
+
+    /**
+     * Évolution mensuelle des dépenses
+     */
+    @Query("""
+        SELECT 
+            YEAR(e.dateDepense) as annee,
+            MONTH(e.dateDepense) as mois,
+            COUNT(e) as nombre,
+            SUM(e.montantXOF) as montant
+        FROM Expense e 
+        WHERE e.dateDepense >= :dateDebut 
+            AND e.dateDepense <= :dateFin
+        GROUP BY YEAR(e.dateDepense), MONTH(e.dateDepense)
+        ORDER BY annee DESC, mois DESC
+        """)
+    List<Object[]> findEvolutionMensuelleDepenses(
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin
+    );
+
+    /**
+     * Répartition des dépenses par catégorie
+     */
+    @Query("""
+        SELECT 
+            ec.nom as nomCategorie,
+            COUNT(e) as nombreDepenses,
+            SUM(e.montantXOF) as montantTotal
+        FROM Expense e 
+        JOIN e.categorie ec
+        WHERE (:annee IS NULL OR YEAR(e.dateDepense) = :annee)
+        GROUP BY ec.id, ec.nom
+        ORDER BY montantTotal DESC
+        """)
+    List<Object[]> findRepartitionParCategorie(@Param("annee") Integer annee);
+
+    /**
+     * Top fournisseurs par montant de dépenses
+     */
+    @Query("""
+        SELECT 
+            COALESCE(es.nom, 'Fournisseur non spécifié') as nomFournisseur,
+            COUNT(e) as nombreDepenses,
+            SUM(e.montantXOF) as montantTotal
+        FROM Expense e 
+        LEFT JOIN e.fournisseur es
+        WHERE (:annee IS NULL OR YEAR(e.dateDepense) = :annee)
+        GROUP BY es.id, es.nom
+        ORDER BY montantTotal DESC
+        """)
+    List<Object[]> findTopFournisseurs(@Param("annee") Integer annee);
 }

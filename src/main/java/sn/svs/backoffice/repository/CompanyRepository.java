@@ -117,4 +117,22 @@ public interface CompanyRepository extends JpaRepository<Company, Long>, JpaSpec
      */
     @Query("SELECT c.ville, COUNT(c) FROM Company c WHERE c.active = true AND c.pays = :pays GROUP BY c.ville ORDER BY COUNT(c) DESC")
     List<Object[]> getCompanyStatisticsByCity(@Param("pays") String pays);
+
+
+    /**
+     * Top compagnies par chiffre d'affaires
+     */
+    @Query("""
+        SELECT 
+            c.nom as nomCompagnie,
+            COUNT(i) as nombreFactures,
+            SUM(i.montantTotal) as chiffreAffaires
+        FROM Company c
+        LEFT JOIN Invoice i ON i.compagnieId = c.id AND i.active = true
+        WHERE (:annee IS NULL OR YEAR(i.dateFacture) = :annee)
+        GROUP BY c.id, c.nom
+        HAVING SUM(i.montantTotal) > 0
+        ORDER BY chiffreAffaires DESC
+        """)
+    List<Object[]> findTopCompaniesByRevenue(@Param("annee") Integer annee);
 }

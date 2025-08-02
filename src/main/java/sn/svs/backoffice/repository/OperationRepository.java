@@ -99,4 +99,43 @@ public interface OperationRepository extends JpaRepository<Operation, Long> {
     @Query("SELECT o.code FROM Operation o WHERE o.code LIKE 'OPE-%' ORDER BY o.code DESC LIMIT 1")
     String findLastCode();
 
+    /**
+     * Prestations les plus facturées
+     */
+    @Query("""
+        SELECT 
+            o.nom as nomOperation,
+            o.code as codeOperation,
+            COUNT(ili) as nombreFois,
+            SUM(ili.montantXOF) as montantTotal,
+            AVG(ili.montantXOF) as montantMoyen
+        FROM Operation o
+        LEFT JOIN InvoiceLineItem ili ON ili.operationId = o.id
+        LEFT JOIN ili.invoice i ON i.active = true
+        WHERE o.active = true 
+            AND (:annee IS NULL OR YEAR(i.dateFacture) = :annee)
+        GROUP BY o.id, o.nom, o.code
+        HAVING COUNT(ili) > 0
+        ORDER BY montantTotal DESC
+        """)
+    List<Object[]> findTopOperationsByRevenue(@Param("annee") Integer annee);
+
+    /**
+     * Statistiques par opération
+     */
+    @Query("""
+        SELECT 
+            o.nom as nomOperation,
+            COUNT(ili) as utilisations,
+            SUM(ili.quantite) as quantiteTotale,
+            SUM(ili.montantXOF) as montantTotal
+        FROM Operation o
+        LEFT JOIN InvoiceLineItem ili ON ili.operationId = o.id
+        LEFT JOIN ili.invoice i ON i.active = true
+        WHERE o.active = true
+        GROUP BY o.id, o.nom
+        ORDER BY montantTotal DESC
+        """)
+    List<Object[]> findOperationStatistics();
+
 }

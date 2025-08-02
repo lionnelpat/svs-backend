@@ -131,6 +131,7 @@ public class PaymentMethodController {
 
         PaymentMethodDTO.SearchFilter filter = PaymentMethodDTO.SearchFilter.builder()
                 .search(search)
+                .active(true)
                 .page(page)
                 .size(size)
                 .sortBy(sortBy)

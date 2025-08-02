@@ -400,4 +400,73 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
             "AND i.statut IN ('EMISE', 'EN_RETARD') " +
             "ORDER BY c.nom")
     List<Object[]> findCompaniesWithUnpaidInvoices();
+
+
+    /**
+     * Compte le nombre total de factures actives
+     */
+    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.active = true")
+    Long countActiveInvoices();
+
+    /**
+     * Calcule le montant total des factures actives
+     */
+    @Query("SELECT SUM(i.montantTotal) FROM Invoice i WHERE i.active = true AND i.statut='PAYEE'")
+    BigDecimal sumTotalAmountActiveInvoices();
+
+    /**
+     * Évolution mensuelle du nombre de factures
+     */
+    @Query("""
+        SELECT 
+            YEAR(i.dateFacture) as annee,
+            MONTH(i.dateFacture) as mois,
+            COUNT(i) as nombre,
+            SUM(i.montantTotal) as montant
+        FROM Invoice i 
+        WHERE i.active = true 
+            AND i.dateFacture >= :dateDebut 
+            AND i.dateFacture <= :dateFin
+        GROUP BY YEAR(i.dateFacture), MONTH(i.dateFacture)
+        ORDER BY annee DESC, mois DESC
+        """)
+    List<Object[]> findEvolutionMensuelleFactures(
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin
+    );
+
+    /**
+     * Répartition par société (compagnie)
+     */
+    @Query("""
+        SELECT 
+            c.nom as nomSociete,
+            COUNT(i) as nombreFactures,
+            SUM(i.montantTotal) as montantTotal
+        FROM Invoice i 
+        JOIN i.compagnie c
+        WHERE i.active = true 
+            AND (:annee IS NULL OR YEAR(i.dateFacture) = :annee)
+        GROUP BY c.id, c.nom
+        ORDER BY montantTotal DESC
+        """)
+    List<Object[]> findRepartitionParSociete(@Param("annee") Integer annee);
+
+    /**
+     * Répartition par prestations via les lignes de facture
+     */
+    @Query("""
+        SELECT 
+            o.nom as nomOperation,
+            COUNT(DISTINCT ili.id) as nombreLignes,
+            SUM(ili.montantXOF) as montantTotal
+        FROM InvoiceLineItem ili
+        JOIN ili.operation o
+        JOIN ili.invoice i
+        WHERE i.active = true 
+            AND (:annee IS NULL OR YEAR(i.dateFacture) = :annee)
+        GROUP BY o.id, o.nom
+        ORDER BY montantTotal DESC
+        """)
+    List<Object[]> findRepartitionParPrestation(@Param("annee") Integer annee);
 }

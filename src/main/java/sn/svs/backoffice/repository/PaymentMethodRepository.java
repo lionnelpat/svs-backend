@@ -126,8 +126,9 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Lo
         SELECT o FROM PaymentMethod o
         WHERE (:search IS NULL OR 
                LOWER(o.nom) LIKE :search OR 
-               LOWER(o.code) LIKE :search OR 
-               LOWER(o.description) LIKE :search)
+               LOWER(o.code) LIKE :search OR
+               LOWER(o.description) LIKE :search AND 
+               o.actif = true)
         """)
     Page<PaymentMethod> findWithFilters(
             @Param("search") String search,
