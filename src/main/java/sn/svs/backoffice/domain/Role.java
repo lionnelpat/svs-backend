@@ -3,9 +3,9 @@ package sn.svs.backoffice.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import sn.svs.backoffice.domain.ennumeration.RoleName;
 

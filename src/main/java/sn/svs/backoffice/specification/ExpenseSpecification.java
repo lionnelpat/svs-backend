@@ -1,15 +1,17 @@
 package sn.svs.backoffice.specification;
 
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import sn.svs.backoffice.domain.ennumeration.ExpenseStatus;
-import sn.svs.backoffice.dto.ExpenseDTO;
 import sn.svs.backoffice.domain.Expense;
 import sn.svs.backoffice.domain.ExpenseCategory;
 import sn.svs.backoffice.domain.ExpenseSupplier;
 import sn.svs.backoffice.domain.PaymentMethod;
+import sn.svs.backoffice.domain.ennumeration.ExpenseStatus;
+import sn.svs.backoffice.dto.ExpenseDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -1,4 +1,5 @@
 package sn.svs.backoffice.web.rest;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sn.svs.backoffice.config.GlobalExceptionHandler;
 import sn.svs.backoffice.dto.ApiResponseDTO;
-import sn.svs.backoffice.dto.OperationDTO;
 import sn.svs.backoffice.dto.PaymentMethodDTO;
 import sn.svs.backoffice.service.PaymentMethodService;
 

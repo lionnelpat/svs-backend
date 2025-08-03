@@ -1,20 +1,17 @@
 // ========== ROLE DTO ==========
 package sn.svs.backoffice.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
 import sn.svs.backoffice.domain.Role;
-
-import jakarta.validation.constraints.*;
 import sn.svs.backoffice.domain.ennumeration.RoleName;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static sn.svs.backoffice.security.constants.SecurityConstants.USER;
 
 /**
  * DTOs pour l'entité Role

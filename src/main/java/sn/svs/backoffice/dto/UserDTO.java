@@ -1,13 +1,11 @@
 // ========== USER DTO ==========
 package sn.svs.backoffice.dto;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
-
-import jakarta.validation.constraints.*;
 import sn.svs.backoffice.domain.User;
 
 import java.time.LocalDateTime;

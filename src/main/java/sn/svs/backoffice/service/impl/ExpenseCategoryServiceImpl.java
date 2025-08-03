@@ -9,7 +9,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.svs.backoffice.domain.ExpenseCategory;
-import sn.svs.backoffice.domain.Operation;
 import sn.svs.backoffice.dto.ExpenseCategoryDTO;
 import sn.svs.backoffice.exceptions.DuplicateResourceException;
 import sn.svs.backoffice.exceptions.ResourceNotFoundException;

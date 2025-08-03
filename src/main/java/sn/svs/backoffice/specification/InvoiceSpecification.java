@@ -1,14 +1,16 @@
 package sn.svs.backoffice.specification;
 
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import sn.svs.backoffice.domain.Company;
+import sn.svs.backoffice.domain.Invoice;
+import sn.svs.backoffice.domain.Ship;
 import sn.svs.backoffice.domain.ennumeration.InvoiceStatus;
 import sn.svs.backoffice.dto.InvoiceDTO;
-import sn.svs.backoffice.domain.Invoice;
-import sn.svs.backoffice.domain.Company;
-import sn.svs.backoffice.domain.Ship;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

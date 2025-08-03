@@ -1,9 +1,8 @@
 package sn.svs.backoffice.mapper;
+
 import org.mapstruct.*;
 import org.springframework.data.domain.Page;
-import sn.svs.backoffice.domain.Operation;
 import sn.svs.backoffice.domain.PaymentMethod;
-import sn.svs.backoffice.dto.OperationDTO;
 import sn.svs.backoffice.dto.PaymentMethodDTO;
 
 import java.util.List;

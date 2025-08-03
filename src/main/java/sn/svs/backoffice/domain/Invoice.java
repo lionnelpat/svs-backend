@@ -1,12 +1,12 @@
 package sn.svs.backoffice.domain;
 
-import sn.svs.backoffice.domain.ennumeration.InvoiceStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import sn.svs.backoffice.domain.ennumeration.InvoiceStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

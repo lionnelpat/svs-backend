@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import sn.svs.backoffice.dto.PaymentMethodDTO;
 import sn.svs.backoffice.exceptions.BusinessException;
 import sn.svs.backoffice.exceptions.ResourceNotFoundException;
-import sn.svs.backoffice.service.impl.PaymentMethodServiceImpl;
 
 import java.util.List;
 

@@ -3,7 +3,6 @@ package sn.svs.backoffice.service;
 import sn.svs.backoffice.dto.DashboardDtos;
 
 import java.util.List;
-import java.time.LocalDate;
 
 /**
  * Service interface pour les données du dashboard

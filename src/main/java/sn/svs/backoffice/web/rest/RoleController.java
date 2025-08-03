@@ -10,15 +10,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sn.svs.backoffice.dto.RoleDTO;
 import sn.svs.backoffice.service.RoleService;
 
 import java.util.List;
 import java.util.Map;
-
-import static sn.svs.backoffice.security.constants.SecurityConstants.HAS_ROLE_ADMIN;
 
 /**
  * Contrôleur CRUD pour la gestion des rôles

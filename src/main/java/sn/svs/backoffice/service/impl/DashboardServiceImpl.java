@@ -1,18 +1,15 @@
 package sn.svs.backoffice.service.impl;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.svs.backoffice.dto.DashboardDtos;
 import sn.svs.backoffice.repository.CompanyRepository;
 import sn.svs.backoffice.repository.ExpenseRepository;
 import sn.svs.backoffice.repository.InvoiceRepository;
 import sn.svs.backoffice.repository.OperationRepository;
 import sn.svs.backoffice.service.DashboardService;
-
-// Implémentation du service Dashboard
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,7 +18,6 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Slf4j
 @Service

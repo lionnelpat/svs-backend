@@ -1,6 +1,8 @@
 // ========== IMPLÉMENTATION EMAILSERVICEIMPL ==========
 package sn.svs.backoffice.service.impl;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,10 +13,6 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import sn.svs.backoffice.service.EmailService;
-
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;

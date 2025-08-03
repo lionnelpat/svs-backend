@@ -2,10 +2,11 @@ package sn.svs.backoffice.dto;
 
 // DTOs pour le Dashboard
 
-import lombok.Data;
-import lombok.Builder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
