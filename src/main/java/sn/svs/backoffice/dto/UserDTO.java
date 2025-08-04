@@ -186,6 +186,11 @@ public class UserDTO {
         private Boolean isActive;
         private Boolean isEmailVerified;
         private String roleName;
+        private List<Long> roleIds;
+        private LocalDateTime createdFrom;
+        private LocalDateTime createdTo;
+        private LocalDateTime lastLoginFrom;
+        private LocalDateTime lastLoginTo;
     }
 
     @Data

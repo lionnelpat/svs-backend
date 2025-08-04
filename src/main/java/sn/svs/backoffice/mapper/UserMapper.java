@@ -88,17 +88,35 @@ public interface UserMapper {
     /**
      * Convertit une Page d'entités User en PageResponse
      */
+//    default UserDTO.PageResponse toPageResponse(Page<User> page) {
+//        if (page == null) {
+//            return null;
+//        }
+//
+//        return UserDTO.PageResponse.builder()
+//                .users(toResponseList(page.getContent()))
+//                .total(page.getTotalElements())
+//                .page(page.getNumber())
+//                .size(page.getSize())
+//                .totalPages(page.getTotalPages())
+//                .first(page.isFirst())
+//                .last(page.isLast())
+//                .hasNext(page.hasNext())
+//                .hasPrevious(page.hasPrevious())
+//                .build();
+//    }
+
     default UserDTO.PageResponse toPageResponse(Page<User> page) {
-        if (page == null) {
-            return null;
-        }
+        List<UserDTO.Response> content = page.getContent().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
 
         return UserDTO.PageResponse.builder()
-                .users(toResponseList(page.getContent()))
+                .users(content)
                 .total(page.getTotalElements())
-                .page(page.getNumber())
-                .size(page.getSize())
                 .totalPages(page.getTotalPages())
+                .size(page.getSize())
+                .totalPages(page.getNumber())
                 .first(page.isFirst())
                 .last(page.isLast())
                 .hasNext(page.hasNext())

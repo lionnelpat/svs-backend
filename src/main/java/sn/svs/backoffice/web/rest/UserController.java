@@ -24,7 +24,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/admin/users")
 @Slf4j
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
 public class UserController {
 
     private final UserService userService;

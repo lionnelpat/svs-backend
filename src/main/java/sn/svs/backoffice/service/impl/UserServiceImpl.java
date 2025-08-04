@@ -16,6 +16,7 @@ import sn.svs.backoffice.mapper.UserMapper;
 import sn.svs.backoffice.repository.RoleRepository;
 import sn.svs.backoffice.repository.UserRepository;
 import sn.svs.backoffice.service.UserService;
+import sn.svs.backoffice.service.UserWithRolesService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,13 +36,15 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserWithRolesService userWithRolesService;
 
     @Override
     @Transactional(readOnly = true)
     public UserDTO.PageResponse findAll(Pageable pageable) {
         log.debug("Récupération de tous les utilisateurs - Page: {}", pageable.getPageNumber());
 
-        Page<User> usersPage = userRepository.findAllWithRoles(pageable);
+        Page<User> usersPage = userWithRolesService.findAllUsersWithRoles(pageable);
+
         return userMapper.toPageResponse(usersPage);
     }
 
@@ -59,15 +62,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO.PageResponse search(UserDTO.SearchFilter filter, Pageable pageable) {
         log.debug("Recherche d'utilisateurs avec filtre: {}", filter);
 
-        Page<User> usersPage;
-
-        if (filter.getSearch() != null && !filter.getSearch().trim().isEmpty()) {
-            usersPage = userRepository.searchUsers(filter.getSearch(), pageable);
-        } else if (filter.getIsActive() != null) {
-               usersPage = userRepository.findByIsActive(filter.getIsActive(), pageable);
-        } else {
-            usersPage = userRepository.findAll(pageable);
-        }
+        Page<User> usersPage = userWithRolesService.searchUsersWithRoles(filter, pageable);
 
         return userMapper.toPageResponse(usersPage);
     }

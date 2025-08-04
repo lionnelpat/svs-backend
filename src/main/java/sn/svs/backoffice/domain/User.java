@@ -29,6 +29,11 @@ import java.util.stream.Collectors;
                 @UniqueConstraint(columnNames = "email"),
                 @UniqueConstraint(columnNames = "username")
         })
+@SqlResultSetMapping(
+        name = "UserRoleMapping",
+        columns = @ColumnResult(name = "user_id", type = Long.class),
+        entities = @EntityResult(entityClass = Role.class)
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
