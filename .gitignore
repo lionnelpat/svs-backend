@@ -34,3 +34,4 @@ build/
 /.env.dev
 /.env.prod
 /.env.staging
+/logs/maritime-backend.log.2025-06-17.0.gz
