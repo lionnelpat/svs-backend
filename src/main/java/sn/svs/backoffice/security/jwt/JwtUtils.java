@@ -15,10 +15,7 @@ import sn.svs.backoffice.domain.User;
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -75,9 +72,29 @@ public class JwtUtils {
     /**
      * Génère un token d'accès JWT à partir de l'utilisateur
      */
+//    public String generateAccessToken(User user) {
+//        Map<String, Object> claims = buildUserClaims(user);
+//        claims.put(CLAIM_TOKEN_TYPE, TokenType.ACCESS_TOKEN.name());
+//
+//        return buildToken(claims, user.getUsername(), jwtAccessTokenExpirationMs);
+//    }
+
     public String generateAccessToken(User user) {
-        Map<String, Object> claims = buildUserClaims(user);
-        claims.put(CLAIM_TOKEN_TYPE, TokenType.ACCESS_TOKEN.name());
+        Map<String, Object> claims = new HashMap<>();
+
+        // Ajouter les rôles au token
+        List<String> roleNames = user.getRoles() != null ?
+                user.getRoles().stream()
+                        .map(role -> role.getName().name())
+                        .collect(Collectors.toList()) :
+                Collections.emptyList();
+
+        claims.put("roles", roleNames);
+        claims.put("userId", user.getId());
+        claims.put("email", user.getEmail());
+        claims.put("fullName", user.getFirstName() + " " + user.getLastName());
+        claims.put("isActive", user.getIsActive());
+        claims.put("tokenType", "ACCESS_TOKEN");
 
         return buildToken(claims, user.getUsername(), jwtAccessTokenExpirationMs);
     }

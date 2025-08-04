@@ -3,10 +3,15 @@ package sn.svs.backoffice.mapper;
 
 import org.mapstruct.*;
 import org.springframework.data.domain.Page;
+import sn.svs.backoffice.domain.Role;
 import sn.svs.backoffice.domain.User;
+import sn.svs.backoffice.dto.RoleDTO;
 import sn.svs.backoffice.dto.UserDTO;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Mapper pour l'entité User
@@ -43,8 +48,10 @@ public interface UserMapper {
     /**
      * Convertit une entité User en Response
      */
-    @Mapping(target = "roles", source = "roles")
+    @Mapping(target = "roles", expression = "java(mapRoles(user.getRoles()))")
     UserDTO.Response toResponse(User user);
+
+
 
     /**
      * Convertit une liste d'entités User en liste de Response
@@ -107,5 +114,16 @@ public interface UserMapper {
             return null;
         }
         return "%" + filter.getSearch().trim().toLowerCase() + "%";
+    }
+
+
+    // Méthode helper pour mapper les rôles
+    default List<RoleDTO.Summary> mapRoles(Set<Role> roles) {
+        if (roles == null || roles.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return roles.stream()
+                .map(RoleDTO.Summary::fromEntity)
+                .collect(Collectors.toList());
     }
 }

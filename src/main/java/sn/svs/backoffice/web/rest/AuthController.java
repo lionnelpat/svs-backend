@@ -1,6 +1,7 @@
 package sn.svs.backoffice.web.rest;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.web.bind.annotation.*;
 import sn.svs.backoffice.domain.User;
 import sn.svs.backoffice.dto.AuthDTO;
@@ -23,7 +25,9 @@ import sn.svs.backoffice.service.UserDetailsService;
 import sn.svs.backoffice.service.UserReloadService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Contrôleur REST pour l'authentification JWT
@@ -62,6 +66,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
+    @Transactional
     public ResponseEntity<Object> login(@Valid @RequestBody AuthDTO.LoginRequest loginRequest,
                                         HttpServletRequest request) {
         try {
@@ -77,19 +82,24 @@ public class AuthController {
                     )
             );
 
-            // Recharger l'utilisateur avec ses rôles
-            User user = userReloadService.reloadUserWithRoles(loginRequest.getUsername());
+            // SÉPARATION: Mettre à jour la dernière connexion AVANT de recharger avec les rôles
+            updateLastLoginSafely(loginRequest.getUsername());
 
-            log.info("Utilisateur rechargé avec {} rôle(s): {}",
-                    user.getRoles().size(),
-                    user.getRoles().stream().map(r -> r.getName().name()).toList());
+            // Recharger l'utilisateur avec ses rôles dans une nouvelle transaction
+            User user = reloadUserWithRolesSafely(loginRequest.getUsername());
 
-            // Générer les tokens JWT
+            log.info("Utilisateur rechargé: {} avec {} rôle(s)",
+                    user.getUsername(),
+                    user.getRoles() != null ? user.getRoles().size() : 0);
+
+            if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+                user.getRoles().forEach(role ->
+                        log.info("Rôle trouvé: {}", role.getName().name()));
+            }
+
+            // Générer les tokens JWT avec les rôles
             String accessToken = jwtUtils.generateAccessToken(user);
             String refreshToken = jwtUtils.generateRefreshToken(user);
-
-            // Mettre à jour la dernière connexion
-            userDetailsService.updateLastLogin(user.getUsername());
 
             // Construire la réponse
             AuthDTO.LoginResponse response = AuthDTO.LoginResponse.builder()
@@ -105,9 +115,11 @@ public class AuthController {
                             .email(user.getEmail())
                             .firstName(user.getFirstName())
                             .lastName(user.getLastName())
-                            .roles(user.getRoles().stream()
-                                    .map(role -> role.getName().name())
-                                    .toList())
+                            .roles(user.getRoles() != null ?
+                                    user.getRoles().stream()
+                                            .map(role -> role.getName().name())
+                                            .collect(Collectors.toList()) :
+                                    Collections.emptyList())
                             .isActive(user.getIsActive())
                             .isEmailVerified(user.getIsEmailVerified())
                             .lastLogin(user.getLastLogin())
@@ -122,7 +134,7 @@ public class AuthController {
         } catch (AuthenticationException e) {
             return authExceptionHandler.handleAuthenticationException(e, request, loginRequest.getUsername());
         } catch (Exception e) {
-            log.error("Erreur système lors de la connexion pour {}: {}", loginRequest.getUsername(), e.getMessage());
+            log.error("Erreur système lors de la connexion pour {}: {}", loginRequest.getUsername(), e.getMessage(), e);
 
             ErrorDTO.Response errorResponse = ErrorDTO.Response.builder()
                     .path(request.getRequestURI())
@@ -143,6 +155,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
+
 
 
     /**
@@ -466,18 +480,44 @@ public class AuthController {
     /**
      * Extrait l'adresse IP réelle du client
      */
-    private String getClientIpAddress(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
+//    private String getClientIpAddress(HttpServletRequest request) {
+//        String xForwardedFor = request.getHeader("X-Forwarded-For");
+//        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+//            return xForwardedFor.split(",")[0].trim();
+//        }
+//
+//        String xRealIp = request.getHeader("X-Real-IP");
+//        if (xRealIp != null && !xRealIp.isEmpty()) {
+//            return xRealIp;
+//        }
+//
+//        return request.getRemoteAddr();
+//    }
 
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isEmpty()) {
-            return xRealIp;
+    // Méthode pour mettre à jour la dernière connexion de façon sécurisée
+    @Transactional
+    protected void updateLastLoginSafely(String username) {
+        try {
+            userDetailsService.updateLastLogin(username);
+        } catch (Exception e) {
+            log.warn("Impossible de mettre à jour la dernière connexion pour {}: {}", username, e.getMessage());
+            // Ne pas faire échouer l'authentification pour cette erreur
         }
+    }
 
-        return request.getRemoteAddr();
+    // Méthode pour recharger l'utilisateur avec les rôles de façon sécurisée
+    @Transactional
+    protected User reloadUserWithRolesSafely(String username) {
+        return userReloadService.reloadUserWithRoles(username);
+    }
+
+    protected String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+        if (xForwardedForHeader == null || xForwardedForHeader.isEmpty()) {
+            return request.getRemoteAddr();
+        } else {
+            return xForwardedForHeader.split(",")[0].trim();
+        }
     }
 }
 

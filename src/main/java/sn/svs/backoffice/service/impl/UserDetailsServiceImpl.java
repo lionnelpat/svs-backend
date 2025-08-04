@@ -1,20 +1,26 @@
 // ========== IMPLÉMENTATION USERDETAILSSERVICEIMPL ==========
 package sn.svs.backoffice.service.impl;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import sn.svs.backoffice.domain.Role;
 import sn.svs.backoffice.domain.User;
 import sn.svs.backoffice.exceptions.AccountLockedException;
 import sn.svs.backoffice.exceptions.DisabledUserException;
 import sn.svs.backoffice.exceptions.EmailNotVerifiedException;
 import sn.svs.backoffice.repository.UserRepository;
 import sn.svs.backoffice.service.UserDetailsService;
+import sn.svs.backoffice.service.UserWithRolesService;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,6 +38,8 @@ import java.util.Optional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
+    private final UserWithRolesService userWithRolesService;
 
     /**
      * Charge un utilisateur par son nom d'utilisateur (username ou email)
@@ -40,27 +48,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.debug("Tentative de chargement de l'utilisateur: {}", username);
+        log.debug("Chargement de l'utilisateur: {}", username);
 
-        // Rechercher l'utilisateur par username ou email
-        User user = findUserByUsernameOrEmail(username);
+        // Utilisation du service dédié qui retourne un objet détaché
+        User user = userWithRolesService.loadUserWithRoles(username);
 
-        if (user.getRoles() != null) {
-            log.debug("Utilisateur '{}' chargé avec {} rôle(s): {}",
-                    username,
-                    user.getRoles().size(),
-                    user.getRoles().stream()
-                            .map(role -> role.getName().name())
-                            .toList());
-        } else {
-            log.warn("Utilisateur '{}' chargé SANS rôles !", username);
+        log.debug("Utilisateur trouvé: {} avec {} rôle(s)",
+                user.getUsername(),
+                user.getRoles() != null ? user.getRoles().size() : 0);
+
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            user.getRoles().forEach(role ->
+                    log.debug("Role chargé: {}", role.getName()));
         }
-
-        // Vérifications de sécurité
-        validateUserAccount(user);
-
-        log.debug("Utilisateur '{}' chargé avec succès avec {} rôle(s)",
-                username, user.getRoles().size());
 
         return user;
     }
@@ -107,15 +107,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional
     public void updateLastLogin(String username) {
         try {
-            User user = findUserByUsernameOrEmail(username);
-            user.updateLastLogin();
-            user.resetLoginAttempts(); // Reset des tentatives échouées après connexion réussie
-            userRepository.save(user);
-
+            // Requête directe pour éviter les problèmes de relations
+            userRepository.updateLastLoginByUsername(username, LocalDateTime.now());
             log.debug("Dernière connexion mise à jour pour l'utilisateur: {}", username);
         } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour de la dernière connexion pour {}: {}",
-                    username, e.getMessage());
+            log.error("Erreur lors de la mise à jour de la dernière connexion pour {}: {}", username, e.getMessage());
+            throw e;
         }
     }
 

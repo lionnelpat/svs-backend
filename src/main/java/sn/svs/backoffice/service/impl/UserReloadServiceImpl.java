@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sn.svs.backoffice.domain.User;
 import sn.svs.backoffice.repository.UserRepository;
 import sn.svs.backoffice.service.UserReloadService;
+import sn.svs.backoffice.service.UserWithRolesService;
 
 /**
  * Service utilitaire pour recharger les utilisateurs avec leurs rôles
@@ -17,39 +18,24 @@ import sn.svs.backoffice.service.UserReloadService;
 @RequiredArgsConstructor
 public class UserReloadServiceImpl implements UserReloadService {
 
+    private final UserWithRolesService userWithRolesService;
     private final UserRepository userRepository;
 
-    /**
-     * Recharge un utilisateur avec ses rôles depuis la base de données
-     */
     @Transactional(readOnly = true)
     public User reloadUserWithRoles(User user) {
-        if (user == null || user.getId() == null) {
-            log.warn("Tentative de rechargement d'un utilisateur null ou sans ID");
+        if (user == null || user.getUsername() == null) {
+            log.warn("Tentative de rechargement d'un utilisateur null ou sans username");
             return user;
         }
 
         log.debug("Rechargement de l'utilisateur {} avec ses rôles", user.getUsername());
-
-        return userRepository.findByIdWithRoles(user.getId())
-                .orElseThrow(() -> {
-                    log.error("Utilisateur non trouvé lors du rechargement: ID {}", user.getId());
-                    return new RuntimeException("Utilisateur non trouvé: " + user.getId());
-                });
+        return userWithRolesService.loadUserWithRoles(user.getUsername());
     }
 
-    /**
-     * Recharge un utilisateur avec ses rôles par username
-     */
     @Transactional(readOnly = true)
     public User reloadUserWithRoles(String username) {
         log.debug("Rechargement de l'utilisateur {} avec ses rôles", username);
-
-        return userRepository.findByUsernameWithRoles(username)
-                .orElseThrow(() -> {
-                    log.error("Utilisateur non trouvé lors du rechargement: {}", username);
-                    return new RuntimeException("Utilisateur non trouvé: " + username);
-                });
+        return userWithRolesService.loadUserWithRoles(username);
     }
 
     /**

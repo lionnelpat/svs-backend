@@ -31,16 +31,28 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @EntityGraph(attributePaths = "roles")
     Optional<User> findByEmail(String email);
 
-    /**
-     * Trouve un utilisateur avec ses rôles chargés par username
-     */
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE LOWER(u.username) = LOWER(:username)")
+    @Query(value = """
+        SELECT DISTINCT u 
+        FROM User u 
+        LEFT JOIN FETCH u.roles r 
+        WHERE LOWER(u.username) = LOWER(:username)
+        """)
     Optional<User> findByUsernameWithRoles(@Param("username") String username);
 
-    /**
-     * Trouve un utilisateur avec ses rôles chargés par email
-     */
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE LOWER(u.email) = LOWER(:email)")
+    // AJOUT: Méthode pour mettre à jour la dernière connexion sans charger les relations
+    @Modifying
+    @Query("UPDATE User u SET u.lastLogin = :lastLogin WHERE u.username = :username")
+    void updateLastLoginByUsername(@Param("username") String username, @Param("lastLogin") LocalDateTime lastLogin);
+
+    @Query(value = """
+        SELECT DISTINCT u 
+        FROM User u 
+        LEFT JOIN FETCH u.roles r 
+        WHERE u.id = :id
+        """)
+    Optional<User> findByIdWithRoles(@Param("id") Long id);
+
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :email")
     Optional<User> findByEmailWithRoles(@Param("email") String email);
 
     /**
@@ -48,13 +60,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE LOWER(u.username) = LOWER(:identifier) OR LOWER(u.email) = LOWER(:identifier)")
     Optional<User> findByUsernameOrEmailWithRoles(@Param("identifier") String identifier);
-
-    /**
-     * Trouve un utilisateur avec ses rôles chargés par ID
-     */
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id")
-    Optional<User> findByIdWithRoles(@Param("id") Long id);
-
 
     // ========== RECHERCHE PAR IDENTIFIANTS ==========
 
