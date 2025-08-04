@@ -344,6 +344,9 @@ public class ExpenseDTO {
         @Schema(description = "Montant total en EUR", example = "24000.50")
         private BigDecimal totalAmountEUR;
 
+        @Schema(description = "Nombre en attentes ", example = "10")
+        private BigDecimal totalPending;
+
         @Schema(description = "Répartition par statut")
         private List<StatutCount> statutRepartition;
 

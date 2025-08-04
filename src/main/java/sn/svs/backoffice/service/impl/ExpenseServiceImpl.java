@@ -348,8 +348,16 @@ public class ExpenseServiceImpl implements ExpenseService {
         // Stats générales
         Map<String, Object> generalStats = expenseRepository.getGeneralStats();
         Long totalExpenses = (Long) generalStats.get("total");
+
         BigDecimal totalAmountXOF = (BigDecimal) generalStats.get("sumXOF");
         BigDecimal totalAmountEUR = (BigDecimal) generalStats.get("sumEUR");
+
+        List<Expense> pendingExpenses = expenseRepository.findPendingExpensesWithFetch();
+
+        log.info("Total des dépenses: {}, Montant total XOF: {}, Montant total EUR: {}, Nombre de dépenses en attente: {}",
+                totalExpenses, totalAmountXOF, totalAmountEUR, pendingExpenses.size());
+
+        BigDecimal totalPendingExpenses = BigDecimal.valueOf(pendingExpenses.size());
 
         // Répartition par statut
         List<Object[]> statusStats = expenseRepository.getStatsByStatus();
@@ -386,6 +394,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         return ExpenseDTO.StatsResponse.builder()
                 .totalExpenses(totalExpenses)
+                .totalPending(totalPendingExpenses)
                 .totalAmountXOF(totalAmountXOF)
                 .totalAmountEUR(totalAmountEUR)
                 .statutRepartition(statutRepartition)
