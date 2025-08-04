@@ -1,26 +1,91 @@
-name: Deploy SVS Backend
+name: Backend CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOCKER_IMAGE: modeltechafrica/svs-backend
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📦 Checkout du code
-        uses: actions/checkout@v3
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-      - name: 🔐 Déploiement SSH sur VPS
-        uses: appleboy/ssh-action@v0.1.10
+      - name: ☕ Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: root
-          key: ${{ secrets.SVS_DEPLOY_KEY }}
-          port: 22
-          script: |
-            cd /opt/svs-deploy
-            ./deploy.sh clean
-            ./deploy.sh backend
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: 📦 Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: 🔨 Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: 🏗️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 📊 Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🐳 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 🎉 Deployment Ready
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "🚀 Backend image successfully built and pushed!"
+          echo "📋 Image: ${{ env.DOCKER_IMAGE }}:latest"
+          echo "🔗 Docker Hub: https://hub.docker.com/r/modeltechafrica/svs-backend"
+          echo "⚡ Ready for deployment via Portainer:"
+          echo "   1. Go to https://portainer.salanevision.com"
+          echo "   2. Navigate to Containers"
+          echo "   3. Stop and recreate 'svs-backend' container"
+          echo "   4. Or update your stack with the new image"
+
+      - name: 📤 Create deployment summary
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Backend image built successfully**" >> $GITHUB_STEP_SUMMARY
+          echo "- 📦 **Image**: \`${{ env.DOCKER_IMAGE }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 **Docker Hub**: [View Image](https://hub.docker.com/r/modeltechafrica/svs-backend)" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚡ **Next Step**: Deploy via [Portainer](https://portainer.salanevision.com)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Deployment Instructions:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Access Portainer dashboard" >> $GITHUB_STEP_SUMMARY
+          echo "2. Go to **Stacks** → **svs-production**" >> $GITHUB_STEP_SUMMARY
+          echo "3. Click **Update** to pull latest images" >> $GITHUB_STEP_SUMMARY
+          echo "4. Or manually recreate the \`svs-backend\` container" >> $GITHUB_STEP_SUMMARY
