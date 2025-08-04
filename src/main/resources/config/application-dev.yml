@@ -1,15 +1,43 @@
-# Configuration pour le profil de d�veloppement
 spring:
   config:
     activate:
       on-profile: dev
 
-  # Configuration spécifique au développement
+  # Configuration base de données développement
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${DB_NAME:svs_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: HikariStaging
+      maximum-pool-size: 15
+      minimum-idle: 3
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # Configuration JPA développement
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: update # Création automatique des tables en dev
+    show-sql: false # Désactivé pour éviter trop de logs en dev
 
+  # Configuration Mail développement (optionnel)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:dev@salanevision.sn}
+    password: ${MAIL_PASSWORD:dev-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: false
+
+  # DevTools pour le développement
   devtools:
     restart:
       enabled: true
@@ -17,7 +45,50 @@ spring:
     livereload:
       enabled: true
 
+# Configuration serveur développement
+server:
+  port: 8081
+  address: 0.0.0.0
+
+# Configuration JWT développement
+app:
+  jwt:
+    secret:  "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    access-token-expiration-ms: 3600000  # 1 heure en dev (plus long pour debug)
+    refresh-token-expiration-ms: 86400000  # 24 heures
+
+  frontend:
+    base-url: "http://localhost:4200"
+
+  email:
+    from: "dev-noreply@salanevision.sn"
+
+# CORS spécifique développement - PERMISSIF
+
+# Configuration des logs développement
 logging:
   level:
-    com.svs.maritime: DEBUG
+    ROOT: INFO
+    sn.svs.backoffice: DEBUG
+    org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/svs-backend-dev.log
+
+# OpenAPI/Swagger activé en développement
+springdoc:
+  swagger-ui:
+    enabled: true
+    try-it-out-enabled: true
+  api-docs:
+    enabled: true
+
+sentry:
+  dsn: https://d16c956a9958950610b966c5fe589667@o4509718469869568.ingest.de.sentry.io/4509718471573584
+  # Add data like request headers and IP for users,
+  # see https://docs.sentry.io/platforms/java/guides/spring-boot/data-management/data-collected/ for more info
+  send-default-pii: true

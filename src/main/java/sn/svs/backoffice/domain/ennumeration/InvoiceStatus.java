@@ -7,17 +7,31 @@ import lombok.Getter;
  */
 @Getter
 public enum InvoiceStatus {
-    BROUILLON("Brouillon"),
-    ENVOYEE("Envoyée"),
-    PARTIELLEMENT_PAYEE("Partiellement payée"),
-    PAYEE("Payée"),
-    EN_RETARD("En retard"),
-    ANNULEE("Annulée");
+    BROUILLON("Brouillon", "Facture en cours de rédaction"),
+    EMISE("Émise", "Facture émise et envoyée au client"),
+    PAYEE("Payée", "Facture payée intégralement"),
+    ANNULEE("Annulée", "Facture annulée"),
+    EN_RETARD("En retard", "Facture échue non payée");
 
-    private final String displayName;
+    private final String label;
+    private final String description;
 
-    InvoiceStatus(String displayName) {
-        this.displayName = displayName;
+    InvoiceStatus(String label, String description) {
+        this.label = label;
+        this.description = description;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public String toString() {
+        return this.label;
     }
 
 }

@@ -1,0 +1,133 @@
+spring:
+  config:
+    activate:
+      on-profile: staging
+
+  # Configuration base de données staging
+  datasource:
+    url: jdbc:postgresql://db:5432/${DB_NAME:staging_db}
+    username: ${DB_USERNAME:staging_user}
+    password: ${DB_PASSWORD:staging_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: HikariStaging
+      maximum-pool-size: 15
+      minimum-idle: 3
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # Configuration JPA staging
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  # Configuration Mail staging
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: true
+
+  # DevTools désactivé en staging
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+
+# Configuration serveur staging
+server:
+  port: ${SERVER_PORT:8081}
+  address: 0.0.0.0
+  # Ajout des en-têtes de sécurité
+  servlet:
+    context-path: /
+  forward-headers-strategy: framework
+
+# Configuration JWT staging
+app:
+  jwt:
+    secret: ${JWT_SECRET:U1ZTLVNhbGFuZS1WaXNpb24tU3RhZ2luZy1TZWNyZXQtS2V5LUZvci1KV1QtVG9rZW4tR2VuZXJhdGlvbi0yMDI1}
+    access-token-expiration-ms: 900000  # 15 minutes en staging
+    refresh-token-expiration-ms: 86400000  # 24 heures
+
+  frontend:
+    base-url: ${FRONTEND_URL:https://svs-frontend.model-technologie.com}
+
+  email:
+    from: ${EMAIL_FROM:business.modeltech@gmail.com}
+
+
+cors:
+  allowed-origins:
+    - ${FRONTEND_URL:https://svs-frontend.model-technologie.com}
+  allowed-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allowed-headers:
+    - "Authorization"
+    - "Content-Type"
+    - "X-Requested-With"
+    - "Accept"
+    - "Origin"
+  exposed-headers:
+    - "Authorization"
+    - "X-Token-Expires-In"
+    - "X-Total-Count"
+  allow-credentials: true
+  max-age: 1800
+
+# Configuration des logs staging
+logging:
+  level:
+    ROOT: WARN
+    sn.svs.backoffice: INFO
+    org.springframework.security: INFO  # Augmenté pour debug CORS
+    org.springframework.web: INFO       # Augmenté pour debug CORS
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/svs-backend-staging.log
+
+# Swagger limité en staging
+springdoc:
+  swagger-ui:
+    enabled: true
+    try-it-out-enabled: false
+  api-docs:
+    enabled: true
+
+# Actuator plus restrictif en staging
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+  server:
+    port: ${MANAGEMENT_PORT:8086}
+    base-path: /management
+svs:
+  security:
+    jwt:
+      header-name: Authorization
+      token-prefix: Bearer
+      secret-key: ${JWT_SECRET}
+

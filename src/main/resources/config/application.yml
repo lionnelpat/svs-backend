@@ -1,4 +1,3 @@
-# Configuration principale pour l'environnement de développement
 spring:
   application:
     name: svs-backend
@@ -8,35 +7,17 @@ spring:
     allow-bean-definition-overriding: false
     banner-mode: console
 
-  # DÉSACTIVER SPRING SECURITY TEMPORAIREMENT
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  security:
+    filter:
+      disable: false
 
-  # Configuration de la base de données PostgreSQL
-  datasource:
-    url: jdbc:postgresql://localhost:5432/svs_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      pool-name: Hikari
-      maximum-pool-size: 20
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-
-  # Configuration JPA
+  # Configuration JPA commune
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create-drop  # Pour le développement, créer automatiquement les tables
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -45,6 +26,8 @@ spring:
         order_inserts: true
         order_updates: true
         generate_statistics: false
+        globally_quoted_identifiers: false
+        use_sql_comments: false
 
   # Configuration Liquibase - DÉSACTIVÉ temporairement
   liquibase:
@@ -54,93 +37,63 @@ spring:
   profiles:
     active: dev
 
-  # Configuration CORS pour Angular
-  web:
-    cors:
-      allowed-origins:
-        - "http://localhost:4200"
-        - "https://localhost:4200"
-        - "http://172.16.47.91:4200"
-        - "http://172.16.47.91:8080"
-      allowed-methods: "*"
-      allowed-headers: "*"
-      allow-credentials: true
-      max-age: 3600
-
 # Configuration du serveur
 server:
-  port: 8080
-  servlet:
-    context-path: /api
-  # Écouter sur toutes les interfaces réseau
-  address: 0.0.0.0
   compression:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
     min-response-size: 1024
 
-# Configuration de la sécurité JWT
-maritime:
-  security:
-    jwt:
-      secret-key: "SVS-Maritime-Dakar-2025-Secret-Key-For-JWT-Token-Generation-Change-In-Production"
-      token-validity-in-seconds: 86400 # 24 heures
-      token-validity-in-seconds-for-remember-me: 2592000 # 30 jours
+# Configuration de base JWT
+app:
+  jwt:
+    issuer: "svs-backend"
+    # Les autres valeurs seront définies dans les profils spécifiques
 
-  # Configuration CORS spécifique
-  cors:
-    allowed-origins: "http://localhost:4200,https://localhost:4200"
-    allowed-methods: "*"
-    allowed-headers: "*"
-    exposed-headers: "Authorization,Link,X-Total-Count,X-Maritime-Alert"
-    allow-credentials: true
-    max-age: 1800
-
-# Configuration des logs
-logging:
-  level:
-    ROOT: INFO
-    com.svs.maritime: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    liquibase: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/maritime-backend.log
+  email:
+    company-name: "Salane Vision S.a.r.l"
+    company:
+      address: "Zone Industrielle, Port Autonome de Dakar, Sénégal"
+      phone: "+221 33 XXX XX XX"
+      website: "https://www.salanevision.sn"
+    signature:
+      name: "L'équipe SVS Backoffice"
+      title: "Service Informatique"
 
 # Configuration Actuator
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
       base-path: /management
   endpoint:
     health:
       show-details: when_authorized
-      roles: 'ADMIN'
+      roles: ''
       probes:
         enabled: true
-  info:
-    git:
-      mode: full
   health:
     mail:
       enabled: false
+  server:
+    base-path: /management
 
 # Configuration OpenAPI/Swagger
 springdoc:
   api-docs:
+    enabled: true
     path: /v3/api-docs
   swagger-ui:
+    enabled: true
     path: /swagger-ui.html
+    try-it-out-enabled: true
     operationsSorter: method
     disable-swagger-default-url: true
+    doc-expansion: none
+    tags-sorter: alpha
   show-actuator: true
   group-configs:
-    - group: 'maritime-api'
-      display-name: 'API Maritime SVS'
-      paths-to-match: '/api/**'
+    - group: 'svs-api'
+      display-name: 'SVS API - Salane Vision S.a.r.l'
+      paths-to-match: '/api/v1/**'

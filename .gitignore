@@ -29,9 +29,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+/logs/*
+
 ### VS Code ###
 .vscode/
 /.env.dev
 /.env.prod
 /.env.staging
-/logs/maritime-backend.log.2025-06-17.0.gz

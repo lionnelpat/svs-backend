@@ -14,8 +14,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -32,12 +30,12 @@ import java.util.Collection;
 				description = "API pour la gestion des factures et dépenses maritimes - Dakar, Sénégal",
 				contact = @Contact(
 						name = "Équipe SVS",
-						email = "support@svs-maritime.sn",
-						url = "https://svs-maritime.sn"
+						email = "support@salanevision.com",
+						url = "https://salanevision.com"
 				),
 				license = @License(
 						name = "Propriétaire SVS",
-						url = "https://svs-maritime.sn/license"
+						url = "https://salanevision.com/license"
 				)
 		)
 )
@@ -80,14 +78,14 @@ public class AppApplication {
 			throw new IllegalStateException("Profils incompatibles activés");
 		}
 
-		// Vérification de la configuration JWT en production
-		if (activeProfiles.contains("prod")) {
-			String jwtSecret = env.getProperty("maritime.security.jwt.secret-key");
-			if (jwtSecret == null || jwtSecret.length() < 32) {
-				log.error("Configuration JWT insuffisante pour la production");
-				throw new IllegalStateException("JWT secret key trop courte pour la production");
-			}
-		}
+//		// Vérification de la configuration JWT en production
+//		if (activeProfiles.contains("prod") || activeProfiles.contains("staging")) {
+//			String jwtSecret = env.getProperty("svs.security.jwt.secret-key");
+//			if (jwtSecret == null || jwtSecret.length() < 32) {
+//				log.error("Configuration JWT insuffisante pour la production");
+//				throw new IllegalStateException("JWT secret key trop courte pour la production");
+//			}
+//		}
 
 		log.info("Application Maritime SVS initialisée avec succès");
 	}
@@ -101,7 +99,7 @@ public class AppApplication {
 			protocol = "https";
 		}
 
-		String serverPort = env.getProperty("server.port", "8080");
+		String serverPort = env.getProperty("server.port", "8081");
 		String contextPath = env.getProperty("server.servlet.context-path", "/");
 		String hostAddress = "localhost";
 
