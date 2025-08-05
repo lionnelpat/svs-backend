@@ -1,249 +1,123 @@
-// ========== IMPLÉMENTATION EMAILSERVICEIMPL ==========
 package sn.svs.backoffice.service.impl;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import sn.svs.backoffice.config.MailProperties;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 import sn.svs.backoffice.service.EmailService;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.Map;
 
-/**
- * Implémentation du service d'envoi d'emails pour Salane Vision S.a.r.l
- * Gère l'envoi d'emails avec templates formels pour l'entreprise maritime
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "app.mail.enabled", havingValue = "true", matchIfMissing = true)
 public class EmailServiceImpl implements EmailService {
 
-    private final JavaMailSender javaMailSender;
-    private final TemplateEngine templateEngine;
+    private final JavaMailSender mailSender;
+    private final MailProperties mailProperties; // ← CHANGÉ: Injecter les propriétés
 
-    @Value("${app.email.from}")
-    private String fromEmail;
-
-    @Value("${app.email.company-name}")
-    private String companyName;
-
-    @Value("${app.frontend.base-url}")
-    private String frontendBaseUrl;
-
-    @Value("${app.email.signature.name}")
-    private String signatureName;
-
-    @Value("${app.email.signature.title}")
-    private String signatureTitle;
-
-    @Value("${app.email.company.address}")
-    private String companyAddress;
-
-    @Value("${app.email.company.phone}")
-    private String companyPhone;
-
-    @Value("${app.email.company.website}")
-    private String companyWebsite;
-
-    /**
-     * Envoie un email simple (texte brut)
-     */
     @Override
-    public void sendEmail(String to, String subject, String content) {
+    public void sendSimpleEmail(String to, String subject, String content) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(mailProperties.getFrom());
             message.setTo(to);
             message.setSubject(subject);
             message.setText(content);
 
-            javaMailSender.send(message);
-
-            log.info("Email simple envoyé avec succès à: {}", to);
+            mailSender.send(message);
+            log.info("Email envoyé avec succès à: {}", to);
 
         } catch (Exception e) {
-            log.error("Erreur lors de l'envoi d'email simple à {}: {}", to, e.getMessage());
-            throw new RuntimeException("Erreur lors de l'envoi d'email", e);
+            log.error("Erreur lors de l'envoi de l'email à {}: {}", to, e.getMessage());
         }
     }
 
-    /**
-     * Envoie un email HTML
-     */
     @Override
-    public void sendHtmlEmail(String to, String subject, String htmlContent) {
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+    public void sendDeploymentNotification(String version, String environment, boolean success, String details) {
+        String status = success ? "SUCCÈS" : "ÉCHEC";
+        String subject = String.format("%s Déploiement %s - %s",
+                mailProperties.getDeployment().getSubjectPrefix(), status, environment.toUpperCase());
 
-            helper.setFrom(fromEmail, companyName);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
+        String content = buildDeploymentEmailContent(version, environment, success, details);
 
-            javaMailSender.send(message);
-
-            log.info("Email HTML envoyé avec succès à: {}", to);
-
-        } catch (MessagingException e) {
-            log.error("Erreur lors de l'envoi d'email HTML à {}: {}", to, e.getMessage());
-            throw new RuntimeException("Erreur lors de l'envoi d'email HTML", e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        mailProperties.getDeployment().getRecipients().forEach(recipient -> {
+            sendSimpleEmail(recipient, subject, content);
+        });
     }
 
-    /**
-     * Envoie un email avec template Thymeleaf
-     */
     @Override
-    public void sendTemplateEmail(String to, String subject, String templateName, Object templateData) {
-        try {
-            Context context = new Context(Locale.FRENCH);
+    public String buildDeploymentEmailContent(String version, String environment, boolean success, String details) {
+        StringBuilder content = new StringBuilder();
 
-            // Ajouter les données du template
-            if (templateData instanceof Map) {
-                Map<String, Object> dataMap = (Map<String, Object>) templateData;
-                context.setVariables(dataMap);
-            }
+        content.append("=== NOTIFICATION DE DÉPLOIEMENT SVS ===\n\n");
 
-            // Ajouter les variables communes de l'entreprise
-            addCompanyVariables(context);
+        content.append("📊 INFORMATIONS GÉNÉRALES\n");
+        content.append("• Statut: ").append(success ? "✅ SUCCÈS" : "❌ ÉCHEC").append("\n");
+        content.append("• Version: ").append(version != null ? version : "latest").append("\n");
+        content.append("• Environnement: ").append(environment.toUpperCase()).append("\n");
+        content.append("• Date/Heure: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))).append("\n\n");
 
-            String htmlContent = templateEngine.process(templateName, context);
-            sendHtmlEmail(to, subject, htmlContent);
+        if (success) {
+            content.append("🚀 DÉPLOIEMENT RÉUSSI\n");
+            content.append("L'application a été déployée avec succès et est maintenant disponible.\n\n");
 
-            log.info("Email avec template '{}' envoyé avec succès à: {}", templateName, to);
-
-        } catch (Exception e) {
-            log.error("Erreur lors de l'envoi d'email avec template '{}' à {}: {}",
-                    templateName, to, e.getMessage());
-            throw new RuntimeException("Erreur lors de l'envoi d'email avec template", e);
+            content.append("🔗 LIENS UTILES\n");
+            content.append("• Frontend: https://svs-frontend.salanevision.com\n");
+            content.append("• Backend API: https://svs-api-backend.salanevision.com\n");
+            content.append("• Portainer: https://svs-portainer.salanevision.com\n");
+            content.append("• Monitoring: https://svs-dozzle.salanevision.com\n\n");
+        } else {
+            content.append("❌ DÉPLOIEMENT ÉCHOUÉ\n");
+            content.append("Le déploiement a rencontré des erreurs. Veuillez vérifier les logs.\n\n");
         }
+
+        if (details != null && !details.trim().isEmpty()) {
+            content.append("📝 DÉTAILS\n");
+            content.append(details).append("\n\n");
+        }
+
+        content.append("---\n");
+        content.append("Ce message a été généré automatiquement par le système SVS.\n");
+        content.append("Pour plus d'informations, consultez Portainer ou les logs de l'application.");
+
+        return content.toString();
     }
 
-    /**
-     * Envoie un email de vérification de compte
-     */
-    public void sendEmailVerification(String to, String firstName, String verificationToken) {
-        try {
-            String verificationUrl = frontendBaseUrl + "/auth/verify-email?token=" + verificationToken;
+    @Override
+    public void sendApplicationStartupNotification(String environment) {
+        String subject = String.format("%s Application Démarrée - %s",
+                mailProperties.getDeployment().getSubjectPrefix(), environment.toUpperCase());
 
-            Context context = new Context(Locale.FRENCH);
-            context.setVariable("firstName", firstName);
-            context.setVariable("verificationUrl", verificationUrl);
-            context.setVariable("validityHours", "24");
-            addCompanyVariables(context);
+        String content = String.format(
+                new StringBuilder().append("=== APPLICATION SVS DÉMARRÉE ===\n\n").append("L'application SVS a démarré avec succès.\n\n").append("📊 INFORMATIONS\n").append("• Environnement: %s\n").append("• Date/Heure: %s\n").append("• Statut: ✅ OPÉRATIONNELLE\n\n").append("🔗 ACCÈS\n").append("• Frontend: https://svs-frontend.salanevision.com\n").append("• Backend API: https://svs-api-backend.salanevision.com\n\n").append("---\n").append("Notification automatique du système SVS.").toString(),
+                environment.toUpperCase(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+        );
 
-            String htmlContent = templateEngine.process("email/email-verification", context);
-            String subject = "Vérification de votre compte - " + companyName;
-
-            sendHtmlEmail(to, subject, htmlContent);
-
-            log.info("Email de vérification envoyé à: {}", to);
-
-        } catch (Exception e) {
-            log.error("Erreur lors de l'envoi d'email de vérification à {}: {}", to, e.getMessage());
-            throw new RuntimeException("Erreur lors de l'envoi d'email de vérification", e);
-        }
+        mailProperties.getDeployment().getRecipients().forEach(recipient -> {
+            sendSimpleEmail(recipient, subject, content);
+        });
     }
 
-    /**
-     * Envoie un email de réinitialisation de mot de passe
-     */
-    public void sendPasswordReset(String to, String firstName, String resetToken) {
+    @Override
+    public boolean testEmailConfiguration() {
         try {
-            String resetUrl = frontendBaseUrl + "/auth/reset-password?token=" + resetToken;
+            String subject = mailProperties.getDeployment().getSubjectPrefix() + " Test de Configuration";
+            String content = "Ceci est un email de test pour vérifier la configuration SMTP.\n\n" +
+                    "Si vous recevez cet email, la configuration est correcte !\n\n" +
+                    "Timestamp: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
-            Context context = new Context(Locale.FRENCH);
-            context.setVariable("firstName", firstName);
-            context.setVariable("resetUrl", resetUrl);
-            context.setVariable("validityHours", "1");
-            addCompanyVariables(context);
-
-            String htmlContent = templateEngine.process("email/password-reset", context);
-            String subject = "Réinitialisation de votre mot de passe - " + companyName;
-
-            sendHtmlEmail(to, subject, htmlContent);
-
-            log.info("Email de réinitialisation envoyé à: {}", to);
-
+            sendSimpleEmail(mailProperties.getFrom(), subject, content);
+            return true;
         } catch (Exception e) {
-            log.error("Erreur lors de l'envoi d'email de réinitialisation à {}: {}", to, e.getMessage());
-            throw new RuntimeException("Erreur lors de l'envoi d'email de réinitialisation", e);
+            log.error("Test de configuration email échoué: {}", e.getMessage());
+            return false;
         }
-    }
-
-    /**
-     * Envoie un email de bienvenue après vérification
-     */
-    public void sendWelcomeEmail(String to, String firstName) {
-        try {
-            Context context = new Context(Locale.FRENCH);
-            context.setVariable("firstName", firstName);
-            context.setVariable("loginUrl", frontendBaseUrl + "/auth/login");
-            addCompanyVariables(context);
-
-            String htmlContent = templateEngine.process("email/welcome", context);
-            String subject = "Bienvenue chez " + companyName;
-
-            sendHtmlEmail(to, subject, htmlContent);
-
-            log.info("Email de bienvenue envoyé à: {}", to);
-
-        } catch (Exception e) {
-            log.error("Erreur lors de l'envoi d'email de bienvenue à {}: {}", to, e.getMessage());
-            throw new RuntimeException("Erreur lors de l'envoi d'email de bienvenue", e);
-        }
-    }
-
-    /**
-     * Envoie un email de notification de changement de mot de passe
-     */
-    public void sendPasswordChangeNotification(String to, String firstName) {
-        try {
-            Context context = new Context(Locale.FRENCH);
-            context.setVariable("firstName", firstName);
-            context.setVariable("changeDate", LocalDateTime.now().format(
-                    DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm", Locale.FRENCH)));
-            addCompanyVariables(context);
-
-            String htmlContent = templateEngine.process("email/password-change-notification", context);
-            String subject = "Modification de votre mot de passe - " + companyName;
-
-            sendHtmlEmail(to, subject, htmlContent);
-
-            log.info("Email de notification de changement de mot de passe envoyé à: {}", to);
-
-        } catch (Exception e) {
-            log.error("Erreur lors de l'envoi d'email de notification à {}: {}", to, e.getMessage());
-            throw new RuntimeException("Erreur lors de l'envoi d'email de notification", e);
-        }
-    }
-
-    /**
-     * Ajoute les variables communes de l'entreprise au contexte
-     */
-    private void addCompanyVariables(Context context) {
-        context.setVariable("companyName", companyName);
-        context.setVariable("companyAddress", companyAddress);
-        context.setVariable("companyPhone", companyPhone);
-        context.setVariable("companyWebsite", companyWebsite);
-        context.setVariable("signatureName", signatureName);
-        context.setVariable("signatureTitle", signatureTitle);
-        context.setVariable("currentYear", LocalDateTime.now().getYear());
-        context.setVariable("currentDate", LocalDateTime.now().format(
-                DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRENCH)));
     }
 }

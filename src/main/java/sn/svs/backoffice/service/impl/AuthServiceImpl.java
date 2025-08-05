@@ -30,7 +30,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService; // Service d'envoi d'emails (à créer)
 
     /**
      * Inscription d'un nouvel utilisateur
@@ -518,7 +517,7 @@ private void sendVerificationEmail(User user) {
 
         String emailContent = buildVerificationEmailContent(user.getFirstName(), verificationUrl);
 
-        emailService.sendEmail(user.getEmail(), subject, emailContent);
+//        emailService.sendSimpleEmail(user.getEmail(), subject, emailContent);
 
         log.debug("Email de vérification envoyé à: {}", user.getEmail());
 
@@ -538,7 +537,7 @@ private void sendVerificationEmail(User user) {
 
             String emailContent = buildResetEmailContent(user.getFirstName(), resetUrl);
 
-            emailService.sendEmail(user.getEmail(), subject, emailContent);
+//            emailService.sendSimpleEmail(user.getEmail(), subject, emailContent);
 
             log.debug("Email de réinitialisation envoyé à: {}", user.getEmail());
 

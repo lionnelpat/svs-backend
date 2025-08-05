@@ -27,15 +27,14 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:dev@salanevision.sn}
-    password: ${MAIL_PASSWORD:dev-password}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
-    test-connection: false
 
   # DevTools pour le développement
   devtools:
@@ -52,6 +51,14 @@ server:
 
 # Configuration JWT développement
 app:
+  mail:
+    from: ${MAIL_FROM:business.modeltech@gmail.com}
+    enabled: ${MAIL_ENABLED:true}
+    deployment:
+      recipients:
+        - business.modeltech@gmail.com
+        # - autre-email@example.com  # Ajoutez d'autres emails si nécessaire
+      subject-prefix: "[SVS Deployment]"
   jwt:
     secret:  "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
     access-token-expiration-ms: 3600000  # 1 heure en dev (plus long pour debug)
@@ -62,6 +69,8 @@ app:
 
   email:
     from: "dev-noreply@salanevision.sn"
+
+
 
 # CORS spécifique développement - PERMISSIF
 

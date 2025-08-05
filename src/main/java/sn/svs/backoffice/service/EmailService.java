@@ -11,15 +11,23 @@ public interface EmailService {
     /**
      * Envoie un email simple
      */
-    void sendEmail(String to, String subject, String content);
+    void sendSimpleEmail(String to, String subject, String content);
 
     /**
      * Envoie un email HTML
      */
-    void sendHtmlEmail(String to, String subject, String htmlContent);
+    void sendDeploymentNotification(String version, String environment, boolean success, String details);
 
     /**
      * Envoie un email avec template
      */
-    void sendTemplateEmail(String to, String subject, String templateName, Object templateData);
+    String buildDeploymentEmailContent(String version, String environment, boolean success, String details);
+
+    /**
+     * Envoie une notification de démarrage de l'application
+     */
+
+    void sendApplicationStartupNotification(String environment);
+
+    boolean testEmailConfiguration();
 }

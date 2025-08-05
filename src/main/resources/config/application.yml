@@ -2,6 +2,23 @@ spring:
   application:
     name: svs-backend
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:business.modeltech@gmail.com}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: smtp.gmail.com
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+
   # Configuration principale Spring
   main:
     allow-bean-definition-overriding: false
@@ -48,7 +65,15 @@ server:
 app:
   jwt:
     issuer: "svs-backend"
-    # Les autres valeurs seront définies dans les profils spécifiques
+
+  mail:
+    from: ${MAIL_FROM:business.modeltech@gmail.com}
+    enabled: ${MAIL_ENABLED:true}
+    deployment:
+      recipients:
+        - business.modeltech@gmail.com
+        # Ajoutez d'autres emails si nécessaire
+      subject-prefix: "[SVS Deployment]"
 
   email:
     company-name: "Salane Vision S.a.r.l"

@@ -67,13 +67,11 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           echo "🚀 Backend image successfully built and pushed!"
-          echo "📋 Image: ${{ env.DOCKER_IMAGE }}:latest"
-          echo "🔗 Docker Hub: https://hub.docker.com/r/modeltechafrica/svs-backend"
-          echo "⚡ Ready for deployment via Portainer:"
-          echo "   1. Go to https://portainer.salanevision.com"
-          echo "   2. Navigate to Containers"
-          echo "   3. Stop and recreate 'svs-backend' container"
-          echo "   4. Or update your stack with the new image"
+          # Notifier le succès du build
+          curl -X POST "https://svs-api-backend.salanevision.com/api/v1/admin/email/deployment-notification" \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_API_TOKEN }}" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "version=${{ github.sha }}&environment=production&success=true&details=Image Docker construite et poussée vers Docker Hub avec succès"
 
       - name: 📤 Create deployment summary
         if: github.ref == 'refs/heads/main'

@@ -26,8 +26,8 @@ spring:
 
   # Configuration Mail production
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
+    host: smtp.gmail.com
+    port: 587
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:
@@ -36,9 +36,6 @@ spring:
           auth: true
           starttls:
             enable: true
-          ssl:
-            trust: "*"
-    test-connection: true
 
 # Configuration serveur production
 server:
@@ -62,6 +59,14 @@ app:
 
   email:
     from: ${EMAIL_FROM:noreply@salanevision.com}
+  mail:
+    from: ${MAIL_FROM:business.modeltech@gmail.com}
+    enabled: ${MAIL_ENABLED:true}
+    deployment:
+      recipients:
+        - business.modeltech@gmail.com
+        # - autre-email@example.com  # Ajoutez d'autres emails si nécessaire
+      subject-prefix: "[SVS Deployment]"
 
 # CORS très restrictif en production
 cors:
