@@ -68,7 +68,7 @@ public class EmailServiceImpl implements EmailService {
             content.append("L'application a été déployée avec succès et est maintenant disponible.\n\n");
 
             content.append("🔗 LIENS UTILES\n");
-            content.append("• Frontend: https://svs-frontend.salanevision.com\n");
+            content.append("• Frontend: https://app.salanevision.com\n");
             content.append("• Backend API: https://svs-api-backend.salanevision.com\n");
             content.append("• Portainer: https://svs-portainer.salanevision.com\n");
             content.append("• Monitoring: https://svs-dozzle.salanevision.com\n\n");
@@ -95,7 +95,7 @@ public class EmailServiceImpl implements EmailService {
                 mailProperties.getDeployment().getSubjectPrefix(), environment.toUpperCase());
 
         String content = String.format(
-                new StringBuilder().append("=== APPLICATION SVS DÉMARRÉE ===\n\n").append("L'application SVS a démarré avec succès.\n\n").append("📊 INFORMATIONS\n").append("• Environnement: %s\n").append("• Date/Heure: %s\n").append("• Statut: ✅ OPÉRATIONNELLE\n\n").append("🔗 ACCÈS\n").append("• Frontend: https://svs-frontend.salanevision.com\n").append("• Backend API: https://svs-api-backend.salanevision.com\n\n").append("---\n").append("Notification automatique du système SVS.").toString(),
+                new StringBuilder().append("=== APPLICATION SVS DÉMARRÉE ===\n\n").append("L'application SVS a démarré avec succès.\n\n").append("📊 INFORMATIONS\n").append("• Environnement: %s\n").append("• Date/Heure: %s\n").append("• Statut: ✅ OPÉRATIONNELLE\n\n").append("🔗 ACCÈS\n").append("• Frontend: https://app.salanevision.com\n").append("• Backend API: https://svs-api-backend.salanevision.com\n\n").append("---\n").append("Notification automatique du système SVS.").toString(),
                 environment.toUpperCase(),
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
         );
